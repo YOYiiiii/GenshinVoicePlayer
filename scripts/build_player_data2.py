@@ -34,7 +34,8 @@ if os.path.exists(_qc):
 
 # 文件名中出现的说话人代码（无独立文件夹、藏在 VO_NPC 等通用目录里；官方名经索引核验）
 EXTRA_SPEAKERS = {'ronova', 'ronovamortal', 'katheryne', 'pierro', 'dunyarzad',
-                  'badegg', 'eide', 'tlazolli', 'poirier', 'mironova'}
+                  'badegg', 'eide', 'tlazolli', 'poirier', 'mironova',
+                  'canon', 'aria', 'tholindis'}
 
 # 同一角色的不同说话人目录合并（重复角色/重复来源）
 MERGE = {
@@ -68,6 +69,8 @@ NAME_OVERRIDES = {
     'citlali': '茜特菈莉', 'olorun': '欧洛伦',
     'gcg_eremite_female_standard_oracle_01': '镀金旅团·炽沙叙事人',
     'vesna': '薇斯纳', 'anastasya': '冰之女皇', 'danica': '达妮卡',
+    # 三月女神（挪德卡莱）：桑娜妲=虹月、卡侬=霜月、艾莉亚=恒月；索琳蒂丝=雷利尔恋人
+    'sonnet': '桑娜妲', 'canon': '卡侬', 'aria': '艾莉亚', 'tholindis': '索琳蒂丝',
     'tips_blow': '派蒙 · 手柄提示', 'tips_hide': '派蒙 · 界面提示', 'vol': '派蒙 · 音量提示',
     'tips_event_manga': '玛薇卡 · 活动提示', 'littleprince': '小王子',
     'gcg_abyss_electric': '深渊法师·雷', 'gcg_abyss_fire': '深渊法师·火',
