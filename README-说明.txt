@@ -7,8 +7,10 @@
     --music 璃月           启动并打开指定音乐分组
 
 【安装包】（dist\原神语音播放器-Setup-1.0.0.msi 或 GitHub Release 下载）
-  双击进入中文向导：现代化深蓝皮肤，向导图 = 最新祈愿角色立绘（7.1 沃雅妮莎；
-  更新立绘：py scripts\build_installer_ui.py 重新生成 installer-ui\*.bmp 后重建 MSI）
+  双击进入中文向导：云母（Mica）质感皮肤，背景 = 至冬供奉大图
+  （UI_Reputation_Bg_SnezhnayaOffering_01_Clearer_02；换图：改 scripts\build_installer_ui.py
+  中 ART 一行后 py scripts\build_installer_ui.py 重新生成 installer-ui\*.bmp 再重建 MSI）
+  横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下依然清晰、无重叠）
   默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
   自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
   GitHub：github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0
