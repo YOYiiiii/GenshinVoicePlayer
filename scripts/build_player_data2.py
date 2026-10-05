@@ -58,6 +58,9 @@ MERGE = {
     'gcg_lasignora': 'signora', 'gcg_lasignora_harbinger': 'signora',
 }
 
+# 置顶显示：旅行者（空/荧）排角色组最前；派蒙（看板娘，非可操作角色）列剧情角色组首位
+PIN = {'hero': ('角色', 1), 'heroine': ('角色', 2), 'paimon': ('剧情角色', 1)}
+
 # 名称覆盖（缺失名/占位名 → 中文名；GCG 魔物名为 bwiki 卡牌表核验 + 官方怪物名）
 NAME_OVERRIDES = {
     'ronova': '若娜瓦', 'mironova': '米洛诺娃', 'katheryne': '凯瑟琳', 'pierro': '「丑角」', 'dunyarzad': '迪娜泽黛',
@@ -250,6 +253,8 @@ def main():
             group = '角色'
         else:
             group = '剧情角色'
+        if eid in PIN:
+            group, order = PIN[eid]
         index_chars.append({'id': eid, 'name': cname, 'order': order, 'total': total,
                             'cats': {c['key']: len(c['items']) for c in cats_sorted}, 'group': group})
     GORD = {'角色': 0, '剧情角色': 1, '七圣召唤': 2, '剧情群像': 3}

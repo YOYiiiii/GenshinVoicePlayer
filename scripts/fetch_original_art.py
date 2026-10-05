@@ -82,7 +82,13 @@ codes = sorted(codes)
 
 def char_pair(src, code):
     from PIL import Image, ImageFilter
-    im = Image.open(src).convert('RGB')
+    im = Image.open(src) if isinstance(src, str) else src
+    if im.mode == 'RGBA':
+        flat = Image.new('RGB', im.size, (11, 16, 26))
+        flat.paste(im, mask=im.getchannel('A'))
+        im = flat
+    else:
+        im = im.convert('RGB')
     out = os.path.join(bgdir, code + '.jpg')
     outb = os.path.join(bgdir, code + '_blur.jpg')
     if not os.path.exists(out):
@@ -95,9 +101,47 @@ def char_pair(src, code):
         y = (bg.height - 1080) // 2
         bg.crop((x, y, x + 1920, y + 1080)).filter(ImageFilter.GaussianBlur(42)).save(outb, quality=80)
 
-ART_FALLBACK = {'hero': 'PlayerBoy', 'heroine': 'PlayerGirl', 'aether': 'PlayerBoy', 'lumine': 'PlayerGirl'}
+ART_FALLBACK = {'aether': 'PlayerBoy', 'lumine': 'PlayerGirl'}
+# 旅行者（空/荧）与派蒙：抽卡立绘库中没有素材，改用官方 CoopImg 全身立绘 / TRPG 派蒙大图 + 官方头像
+SPECIAL_ART = {
+    'hero':    (r'UI\CoopImg\PlayerBoy\UI_CoopImg_PlayerBoy.png',   r'UI\AvatarIcon\PlayerBoy\UI_AvatarIcon_PlayerBoy.png'),
+    'heroine': (r'UI\CoopImg\PlayerGirl\UI_CoopImg_PlayerGirl.png', r'UI\AvatarIcon\PlayerGirl\UI_AvatarIcon_PlayerGirl.png'),
+    'paimon':  (r'UI\TRPG\Paimon\UI_TRPG_Paimon.png',               r'UI\AvatarIcon\Paimon\UI_AvatarIcon_Paimon_01.png'),
+}
+
+
+def special_art(code):
+    from PIL import Image
+    art_rel, icon_rel = SPECIAL_ART[code]
+    im = Image.open(os.path.join(CLASSIFIED, art_rel)).convert('RGBA')
+    # 官方大图带大片透明留白：按 alpha（去噪后）紧致裁剪，让立绘充满画面
+    a = im.getchannel('A').point(lambda v: 255 if v >= 8 else 0)
+    b = a.getbbox()
+    if b:
+        pad = 14
+        im = im.crop((max(0, b[0] - pad), max(0, b[1] - pad),
+                      min(im.width, b[2] + pad), min(im.height, b[3] + pad)))
+    im.save(os.path.join(origdir, code + '.png'), optimize=True)
+    icon = Image.open(os.path.join(CLASSIFIED, icon_rel)).convert('RGBA')
+    bg = Image.new('RGBA', icon.size, (11, 16, 26, 255))
+    bg.alpha_composite(icon)
+    bg.convert('RGB').resize((96, 96), Image.LANCZOS).save(
+        os.path.join(avatardir, code + '.png'), optimize=True)
+    for p in (os.path.join(bgdir, code + '.jpg'), os.path.join(bgdir, code + '_blur.jpg')):
+        if os.path.exists(p):
+            os.remove(p)
+    char_pair(im, code)
+
+
 cnt, miss = 0, []
 for code in codes:
+    if code in SPECIAL_ART:
+        try:
+            special_art(code)
+            cnt += 1
+        except Exception as e:
+            print('特殊立绘失败', code, e)
+        continue
     if code in ART_FALLBACK:
         name = ART_FALLBACK[code]
     else:
