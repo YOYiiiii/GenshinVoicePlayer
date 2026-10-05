@@ -89,7 +89,6 @@ wxs = f'''<?xml version="1.0" encoding="utf-8"?>
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
     <Property Id="INSTALLFOLDER" Value="D:\\Program Files (x86)\\原神语音播放器" Secure="yes" />
     <CustomAction Id="RemoveOldProducts" Script="vbscript" ScriptSourceFile="scripts\\RemoveOldProducts.vbs" Execute="immediate" Return="ignore" />
-    <CustomAction Id="RepairOldProducts" Script="vbscript" ScriptSourceFile="scripts\\RepairOldProducts.vbs" Execute="immediate" Return="ignore" />
     <UI>
       <Dialog Id="UpgradeChoiceDlg" X="50" Y="50" Width="370" Height="270" Title="[ProductName] 安装程序">
         <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Text="WixUI_Bmp_Banner" Disabled="yes" TabSkip="no" />
@@ -105,9 +104,7 @@ wxs = f'''<?xml version="1.0" encoding="utf-8"?>
         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Text="下一步(&amp;N)" Default="yes" TabSkip="no">
           <Publish Event="DoAction" Value="RemoveOldProducts" Condition='UPGRADE_CHOICE = "remove" AND WIX_UPGRADE_DETECTED' />
           <Publish Event="EndDialog" Value="Exit" Condition='UPGRADE_CHOICE = "remove" AND WIX_UPGRADE_DETECTED' />
-          <Publish Event="DoAction" Value="RepairOldProducts" Condition='UPGRADE_CHOICE = "repair" AND WIX_UPGRADE_DETECTED' />
-          <Publish Event="EndDialog" Value="Exit" Condition='UPGRADE_CHOICE = "repair" AND WIX_UPGRADE_DETECTED' />
-          <Publish Event="NewDialog" Value="LicenseAgreementDlg" Condition='UPGRADE_CHOICE = "update" OR NOT WIX_UPGRADE_DETECTED' />
+          <Publish Event="NewDialog" Value="LicenseAgreementDlg" Condition='UPGRADE_CHOICE = "update" OR UPGRADE_CHOICE = "repair" OR NOT WIX_UPGRADE_DETECTED' />
         </Control>
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Text="取消" Cancel="yes" TabSkip="no">
           <Publish Event="SpawnDialog" Value="CancelDlg" />
