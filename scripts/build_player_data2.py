@@ -65,7 +65,9 @@ PIN = {'hero': ('角色', 1), 'heroine': ('角色', 2), 'paimon': ('剧情角色
 # 名称覆盖（缺失名/占位名 → 中文名；GCG 魔物名为 bwiki 卡牌表核验 + 官方怪物名）
 NAME_OVERRIDES = {
     'ronova': '若娜瓦', 'mironova': '米洛诺娃', 'katheryne': '凯瑟琳', 'pierro': '「丑角」', 'dunyarzad': '迪娜泽黛',
-    'badegg': '黑蛋', 'eide': '埃德', 'tlazolli': '特拉佐莉', 'poirier': '普里耶',
+    # 台词自证：宁宁·黑蛋（派蒙起绰号黑蛋，本名宁宁）/ 克洛达尔（埃德为假名）/ 维瑟弗尼尔（戴因之兄·预言家）/ 魔女M（故事女巫）
+    'badegg': '宁宁·黑蛋', 'eide': '克洛达尔', 'vedrfolnir': '维瑟弗尼尔', 'm': '魔女M',
+    'guard': '「守卫」', 'tlazolli': '特拉佐莉', 'poirier': '普里耶',
     'citlali': '茜特菈莉', 'olorun': '欧洛伦',
     'gcg_eremite_female_standard_oracle_01': '镀金旅团·炽沙叙事人',
     'vesna': '薇斯纳', 'anastasya': '冰之女皇', 'danica': '达妮卡',
@@ -226,8 +228,9 @@ def main():
                 entry = code
         if entry is None:
             # 倒序 token 扫描：识别藏在通用目录（VO_NPC/VO_CS 等）文件名里的说话人
+            # （跳过单字符 token，如 _m_ 男声标记；魔女M 由 VO_M 目录码正常识别）
             for tok in reversed(fn.lower().split('_')):
-                if tok.isdigit():
+                if len(tok) < 2 or tok.isdigit():
                     continue
                 if tok in speakers:
                     entry = tok
