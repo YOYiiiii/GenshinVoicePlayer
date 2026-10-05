@@ -6,6 +6,14 @@
     --open wodyanitsa      启动并打开指定角色
     --music 璃月           启动并打开指定音乐分组
 
+【安装包】（dist\原神语音播放器-Setup-1.0.0.msi 或 GitHub Release 下载）
+  双击进入中文向导：现代化深蓝皮肤，向导图 = 最新祈愿角色立绘（7.1 沃雅妮莎；
+  更新立绘：py scripts\build_installer_ui.py 重新生成 installer-ui\*.bmp 后重建 MSI）
+  默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
+  自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
+  GitHub：github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0
+  重新构建：py scripts\build_installer.py → wix build installer.wxs -ext WixToolset.UI.wixext -culture zh-CN
+
 【v2 更新内容】（按需求）
   1. 立绘使用【原始解包 PNG 原图】（assets\bg\orig\，RGBA 带透明通道、逐字节复制未做任何处理）；
      背景层序 = 立绘高斯模糊版 → 暗色遮罩 → 原图立绘（居中完整显示）
@@ -71,6 +79,8 @@
   scripts\build_quest_codes.py    任务代码→中文分类名（官方 Quest/Chapter 数据，输出 quest_codes.json）
   scripts\build_music_source.py   音乐曲目实时解包数据（需 hk4e.map 7.1 + 本机 Music pck 验证）
   scripts\fetch_original_art.py   立绘/头像/地区图更新
+  scripts\build_installer.py      生成 installer.wxs（MSI 安装包定义）
+  scripts\build_installer_ui.py   生成安装向导皮肤（installer-ui\*.bmp，立绘主题）
   app-src\        WPF 源码（dotnet publish -r win-x64 --self-contained true 重建）
 
 【游戏更新后刷新】

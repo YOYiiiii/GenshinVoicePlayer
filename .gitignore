@@ -6,6 +6,7 @@ bin/
 obj/
 dist/
 installer.wxs
+installer-ui/preview-*.png
 *.wixpdb
 
 # ── 游戏素材（体积 221MB + 版权原因；本地用 scripts\fetch_original_art.py 重新生成）──

@@ -81,8 +81,12 @@ wxs = f'''<?xml version="1.0" encoding="utf-8"?>
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="installer-ui\\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="installer-ui\\dialog.bmp" />
+    <WixVariable Id="WixUIBackgroundBmp" Value="installer-ui\\background.bmp" />
     <Icon Id="AppIcon" SourceFile="app-src\\VoicePlayer\\app.ico" />
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="INSTALLFOLDER" Value="D:\\Program Files (x86)\\原神语音播放器" Secure="yes" />
     <StandardDirectory Id="LocalAppDataFolder">
       <Directory Id="INSTALLFOLDER" Name="VoicePlayer">
 {chr(10).join(lines)}
