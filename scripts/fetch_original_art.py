@@ -181,27 +181,108 @@ for code in codes:
     else:
         miss.append(code)
 
-# 剧情 NPC 头像回退：无抽卡立绘的角色用官方任务头像 UI_NPC_Quest_*（如 若娜瓦/迪娜泽黛/「丑角」）
-NPCQ = os.path.join(CLASSIFIED, 'UI', 'NPC', 'Quest')
-NPC_ALIAS = {'dottore': 'IlDotorre', 'pierro': 'IlPierro', 'pantalone': 'IlPantalone', 'signora': 'LaSignora'}
-npc_idx = {}
-for dp, dn, fn in os.walk(NPCQ):
-    for f in fn:
-        if f.startswith('UI_NPC_Quest_') and f.endswith('.png'):
-            npc_idx.setdefault(norm(f[13:-4]), os.path.join(dp, f))
-npc_add = 0
-for code in codes:
-    if code.startswith('gcg_') or os.path.exists(os.path.join(avatardir, code + '.png')):
-        continue
-    src = npc_idx.get(norm(NPC_ALIAS.get(code, code)))
-    if not src:
-        continue
+# 扩展头像来源：所有缺头像的条目按名称匹配官方图像
+#   ① 剧情 NPC：UI\NPC 全区（Quest/各地区）+ NPCPic/NPCIcon（如 若娜瓦/凯瑟琳/查尔斯）
+#   ② 七圣召唤怪物：TCG 怪物/敌人图标 或 魔物图鉴 UI\MonsterIcon（如 史莱姆/恩德盖）
+NPC_ALIAS = {'dottore': 'IlDotorre', 'pierro': 'IlPierro', 'pantalone': 'IlPantalone',
+             'signora': 'LaSignora', 'barkeeper': 'Charles'}
+NPC_REGIONS = {'mengde', 'liyue', 'inazuma', 'sumeru', 'fontaine', 'natlan', 'snezhnaya',
+               'nodkrai', 'quest', 'questabysswar', 'paimon', 'vintage', 'vinatge', 'unknown', 'sideicon'}
+GCG_ALIAS = {
+    'brute_electric_axe': 'BruteAxeElec', 'brute_none_axe': 'BruteAxeFire', 'brute_none_shield': 'BruteShield',
+    'eremite_female_dancer': 'Eremite_Female_Standard_Dancer', 'fungus_unuanudatta_01': 'UnuAnudattaGrass',
+    'monster_raijin': 'Raijin', 'riftstalker_electric': 'Hound_Riftstalker_Electric',
+    'samurai_kairagi_elec_01': 'KairagiElec', 'samurai_kairagi_fire_01': 'KairagiFire',
+    'skirmisher_gloves_wind_01': 'SkirmisherWind', 'skirmisher_greathammer_electric': 'Skirnisherstrongele',
+    'skirmisher_rifle_fire': 'Skirnisherfatfire', 'skirmisher_spraygun_ice': 'SkirmisherIce',
+    'skirmisher_spraygun_water_01': 'SkirmisherWater', 'skirmisher_staff_rock': 'Skirnisherfatrock',
+    'slime_01': 'SlimeWater', 'fatuus_escadron_ice_01': 'Fatuus_Escadron_Ice',
+    'hili_none_01_rockshield': 'Hili_None_01', 'shaman': 'ShamanElectric',
+}
+EXTRA_SINGLE = {
+    'oceanid': os.path.join(CLASSIFIED, 'UI', 'MonsterIcon', 'Oceanid', 'UI_MonsterIcon_Oceanid.png'),
+    'fatuus': os.path.join(CLASSIFIED, 'UI', 'MonsterIcon', 'Fatuus', 'Fire', 'UI_MonsterIcon_Fatuus_Fire_01.png'),
+    'theabyssxiuhcoatl': os.path.join(CLASSIFIED, 'UI', 'Gcg', 'Char', 'MonsterIcon',
+                                      'TheAbyssXiuhcoatl', 'UI_Gcg_Char_MonsterIcon_TheAbyssXiuhcoatl.png'),
+}
+
+
+def norm_match(index, key):
+    if len(key) < 4:
+        return None
+    if key in index:
+        return index[key][1]
+    best = None
+    for k, (p, path) in index.items():
+        if len(k) >= 4 and (key.startswith(k) or k.startswith(key)):
+            if best is None or (p, -len(k)) < (best[0], -len(best[1])):
+                best = (p, k, path)
+    return best[2] if best else None
+
+
+def comp_avatar(src, code):
+    from PIL import Image
     im = Image.open(src).convert('RGBA')
     bg = Image.new('RGBA', im.size, (11, 16, 26, 255))
     bg.alpha_composite(im)
-    bg.convert('RGB').resize((96, 96), Image.LANCZOS).save(os.path.join(avatardir, code + '.png'), optimize=True)
-    npc_add += 1
-print('NPC 任务头像补充:', npc_add)
+    bg.convert('RGB').resize((96, 96), Image.LANCZOS).save(
+        os.path.join(avatardir, code + '.png'), optimize=True)
+
+
+npc_idx = {}
+for prio, folder, prefix in [
+        (0, os.path.join(CLASSIFIED, 'UI', 'NPC'), 'UI_NPC_'),
+        (1, os.path.join(CLASSIFIED, 'UI', 'NPCPic'), 'UI_NPCPic_'),
+        (2, os.path.join(CLASSIFIED, 'UI', 'NPCIcon'), 'UI_NPCIcon_')]:
+    for dp, dn, fn in os.walk(folder):
+        for f in fn:
+            if f.startswith(prefix) and f.endswith('.png'):
+                parts = f[len(prefix):-4].split('_')
+                if parts and norm(parts[0]) in NPC_REGIONS:
+                    parts = parts[1:]
+                if not parts or parts[0].lower() == 'circle':
+                    continue
+                for k in {norm(parts[0]), norm('_'.join(parts))}:
+                    if len(k) >= 3 and (k not in npc_idx or prio < npc_idx[k][0]):
+                        npc_idx[k] = (prio, os.path.join(dp, f))
+
+gcg_idx = {}
+for prio, folder, prefix in [
+        (0, os.path.join(CLASSIFIED, 'UI', 'Gcg', 'Char', 'MonsterIcon'), 'UI_Gcg_Char_MonsterIcon_'),
+        (1, os.path.join(CLASSIFIED, 'UI', 'Gcg', 'Char', 'EnemyIcon'), 'UI_Gcg_Char_EnemyIcon_'),
+        (2, os.path.join(CLASSIFIED, 'UI', 'MonsterIcon'), 'UI_MonsterIcon_')]:
+    for dp, dn, fn in os.walk(folder):
+        for f in fn:
+            if f.startswith(prefix) and f.endswith('.png'):
+                k = norm(f[len(prefix):-4])
+                if k not in gcg_idx or prio < gcg_idx[k][0]:
+                    gcg_idx[k] = (prio, os.path.join(dp, f))
+
+extra_add = 0
+for c in idx['characters']:
+    code = c['id']
+    if os.path.exists(os.path.join(avatardir, code + '.png')):
+        continue
+    src = None
+    if code.startswith('gcg_'):
+        if code[4:] in GCG_ALIAS:
+            src = norm_match(gcg_idx, norm(GCG_ALIAS[code[4:]]))
+        if not src:
+            src = norm_match(gcg_idx, norm(code[4:]))
+    elif code.startswith('story_'):
+        continue
+    elif code in EXTRA_SINGLE:
+        p = EXTRA_SINGLE[code]
+        src = p if os.path.exists(p) else None
+    else:
+        src = norm_match(npc_idx, norm(NPC_ALIAS.get(code, code)))
+    if src:
+        try:
+            comp_avatar(src, code)
+            extra_add += 1
+        except Exception as e:
+            print('头像补全失败', code, e)
+print('NPC/怪物头像补充:', extra_add)
 
 # 地区图：神明祈愿立绘（角色代码 → 该角色原始立绘原图）
 # homeworld(其他) = 当前抽卡活动角色（7.1 沃雅妮莎，换卡池时改这里即可）
