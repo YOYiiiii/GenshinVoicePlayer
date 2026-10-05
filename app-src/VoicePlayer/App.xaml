@@ -44,10 +44,10 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="B" Background="#2EFFFFFF" CornerRadius="16">
                             <Grid>
-                                <!-- 播放：14×17 圆角三角（SF play.fill 比例 h/w≈1.2，与方块统一几何居中） -->
+                                <!-- 播放：14×17 圆角三角（SF play.fill 比例 h/w≈1.2；Margin 2 = 半量生效约 +1px 光学右移，抵消宽底视觉重心偏左） -->
                                 <Path x:Name="IconPlay" Data="M 0,0 L 11,7 L 0,14 Z"
                                       Fill="#FFE6B0" Stroke="#FFE6B0" StrokeThickness="3" StrokeLineJoin="Round"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0"/>
                                 <!-- 停止：15×15 圆角方块（r=3.4，与三角视觉等重） -->
                                 <Path x:Name="IconStop" Data="M 0,3.4 A 3.4,3.4 0 0 1 3.4,0 L 11.6,0 A 3.4,3.4 0 0 1 15,3.4 L 15,11.6 A 3.4,3.4 0 0 1 11.6,15 L 3.4,15 A 3.4,3.4 0 0 1 0,11.6 Z"
                                       Fill="#FFE6B0" Visibility="Collapsed"
