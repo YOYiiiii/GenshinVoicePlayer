@@ -155,7 +155,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Style="{StaticResource PlayBtn}" Content="▶"
+                                    <Button Grid.Column="0" Style="{StaticResource PlayBtn}"
                                             Click="PlayBtn_Click" MouseEnter="PlayBtn_MouseEnter">
                                         <Button.ContextMenu>
                                             <ContextMenu>

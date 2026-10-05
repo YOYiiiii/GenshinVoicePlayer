@@ -514,7 +514,7 @@ namespace VoicePlayer
             _mp.Open(new Uri(path));
             _mp.Play();
             _curBtn = btn; _curKey = key;
-            if (btn != null) btn.Content = "■";
+            if (btn != null) btn.Tag = "playing";
             NowPlaying.Text = "正在播放：" + item.Label;
             UpdateTime();
         }
@@ -530,7 +530,7 @@ namespace VoicePlayer
 
         private void ResetCur()
         {
-            if (_curBtn != null) _curBtn.Content = "▶";
+            if (_curBtn != null) _curBtn.Tag = null;
             _curBtn = null; _curKey = null;
         }
 
