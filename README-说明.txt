@@ -13,11 +13,13 @@
   字体全向导统一 Microsoft YaHei UI，标题/正文分级（大标题 15 / 页标题 11 粗体 / 正文 9）；
   检测到已安装旧版本时，第 2 页为【安装选项】：更新到新版本（推荐，先卸载旧版本再安装新版本）/
   修复现有安装 / 移除现有安装；不选择时默认更新；修复/移除由内置 VBScript 动作调用 msiexec 执行
+  已安装状态下双击 = 维护向导（修改/修复/移除）；进度页文本与进度条保持安全间距（高 DPI 不遮挡）
   横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下清晰、无重叠）；
   欢迎页大标题经 installer-strings.zh-CN.wxl 定制（"欢迎使用 原神语音播放器"），与内页功能标题区分
   默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
   自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
   GitHub：github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0
+  仓库为全量备份（app 运行时 + assets 素材 + 源码 + 安装包走 Git LFS），克隆即得完整工程
   重新构建三步：
     1) py scripts\build_installer.py
     2) wix build installer.wxs installer-strings.zh-CN.wxl -ext WixToolset.UI.wixext -culture zh-CN
@@ -89,7 +91,9 @@
   scripts\build_music_source.py   音乐曲目实时解包数据（需 hk4e.map 7.1 + 本机 Music pck 验证）
   scripts\fetch_original_art.py   立绘/头像/地区图更新
   scripts\build_installer.py      生成 installer.wxs（MSI 安装包定义）
-  scripts\build_installer_ui.py   生成安装向导皮肤（installer-ui\*.bmp，立绘主题）
+  scripts\build_installer_ui.py   生成安装向导皮肤（installer-ui\*.bmp，云母立绘主题）
+  scripts\patch_installer_fonts.ps1  安装包字体统一 + 进度页排版（MSI 构建后必须执行）
+  scripts\RemoveOldProducts.vbs / RepairOldProducts.vbs  安装向导"修复/移除"内置动作
   app-src\        WPF 源码（dotnet publish -r win-x64 --self-contained true 重建）
 
 【游戏更新后刷新】
