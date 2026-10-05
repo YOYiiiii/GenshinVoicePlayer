@@ -11,6 +11,8 @@
   （换图：改 scripts\build_installer_ui.py 中 ART 一行后 py scripts\build_installer_ui.py
   重新生成 installer-ui\*.bmp 再重建 MSI）
   字体全向导统一 Microsoft YaHei UI，标题/正文分级（大标题 15 / 页标题 11 粗体 / 正文 9）；
+  检测到已安装旧版本时，第 2 页为【安装选项】：更新到新版本（推荐，先卸载旧版本再安装新版本）/
+  修复现有安装 / 移除现有安装；不选择时默认更新；修复/移除由内置 VBScript 动作调用 msiexec 执行
   横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下清晰、无重叠）；
   欢迎页大标题经 installer-strings.zh-CN.wxl 定制（"欢迎使用 原神语音播放器"），与内页功能标题区分
   默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
