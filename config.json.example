@@ -1,0 +1,4 @@
+{
+  "_说明": "移植/改路径用：把本文件改名为 config.json 放在 VoicePlayer 根目录（与 app 文件夹同级），audioRoot 指向装有 Chinese 子文件夹的目录",
+  "audioRoot": "D:\\Program Files\\miHoYo Launcher\\games\\Genshin Impact\\Genshin Impact Game\\YuanShen_Data\\StreamingAssets\\AudioAssets"
+}
