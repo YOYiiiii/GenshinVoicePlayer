@@ -1,14 +1,20 @@
 ﻿# -*- coding: utf-8 -*-
 """复制解包原始立绘 PNG 到 assets\\bg\\orig\\（零处理），并生成 96x96 头像缩略图到 assets\\bg\\avatar\\
-头像以透明通道的密度重心为中心裁剪——角色始终居中可见。"""
+头像优先使用官方头像图标 UI_AvatarIcon_*（透明底合成深色）；无图标时回退为按透明通道密度重心从立绘裁切。"""
 import os, io, re, json, shutil
 
 T = r'C:\Users\ONE\AppData\Local\Temp\opencode'
 ROOT = r'E:\Genshin\Collections\VoicePlayer'
 CLASSIFIED = r'E:\Genshin\Texture2D-classified'
 AV = os.path.join(CLASSIFIED, 'UI', 'Gacha', 'AvatarImg')
+AVICON = os.path.join(CLASSIFIED, 'UI', 'AvatarIcon')
 LOADING = os.path.join(CLASSIFIED, 'UI', 'LoadingPic')
 norm = lambda s: re.sub(r'[^a-z0-9]', '', str(s).lower())
+ai_idx = {}
+for _dp, _dn, _fn in os.walk(AVICON):
+    for _f in _fn:
+        if _f.startswith('UI_AvatarIcon_') and _f.endswith('.png'):
+            ai_idx.setdefault(norm(_f[14:-4]), os.path.join(_dp, _f))
 
 av = json.load(io.open(os.path.join(T, 'avatar-excel.json'), encoding='utf-8'))
 av_by_norm = {}
@@ -153,7 +159,18 @@ for code in codes:
         dst = os.path.join(origdir, code + '.png')
         shutil.copyfile(src, dst)
         try:
-            make_avatar(dst, os.path.join(avatardir, code + '.png'))
+            adst = os.path.join(avatardir, code + '.png')
+            icon = os.path.join(AVICON, name, 'UI_AvatarIcon_%s.png' % name)
+            if not os.path.exists(icon):
+                icon = ai_idx.get(norm(name))
+            if icon:
+                from PIL import Image
+                im = Image.open(icon).convert('RGBA')
+                bg = Image.new('RGBA', im.size, (11, 16, 26, 255))
+                bg.alpha_composite(im)
+                bg.convert('RGB').resize((96, 96), Image.LANCZOS).save(adst, optimize=True)
+            else:
+                make_avatar(dst, adst)
         except Exception as e:
             print('头像失败', code, e)
         try:
