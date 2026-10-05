@@ -164,6 +164,28 @@ for code in codes:
     else:
         miss.append(code)
 
+# 剧情 NPC 头像回退：无抽卡立绘的角色用官方任务头像 UI_NPC_Quest_*（如 若娜瓦/迪娜泽黛/「丑角」）
+NPCQ = os.path.join(CLASSIFIED, 'UI', 'NPC', 'Quest')
+NPC_ALIAS = {'dottore': 'IlDotorre', 'pierro': 'IlPierro', 'pantalone': 'IlPantalone', 'signora': 'LaSignora'}
+npc_idx = {}
+for dp, dn, fn in os.walk(NPCQ):
+    for f in fn:
+        if f.startswith('UI_NPC_Quest_') and f.endswith('.png'):
+            npc_idx.setdefault(norm(f[13:-4]), os.path.join(dp, f))
+npc_add = 0
+for code in codes:
+    if code.startswith('gcg_') or os.path.exists(os.path.join(avatardir, code + '.png')):
+        continue
+    src = npc_idx.get(norm(NPC_ALIAS.get(code, code)))
+    if not src:
+        continue
+    im = Image.open(src).convert('RGBA')
+    bg = Image.new('RGBA', im.size, (11, 16, 26, 255))
+    bg.alpha_composite(im)
+    bg.convert('RGB').resize((96, 96), Image.LANCZOS).save(os.path.join(avatardir, code + '.png'), optimize=True)
+    npc_add += 1
+print('NPC 任务头像补充:', npc_add)
+
 # 地区图：神明祈愿立绘（角色代码 → 该角色原始立绘原图）
 # homeworld(其他) = 当前抽卡活动角色（7.1 沃雅妮莎，换卡池时改这里即可）
 REG_FROM_CHAR = {
