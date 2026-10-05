@@ -107,6 +107,32 @@ NAME_OVERRIDES = {
     'gcg_fungus_raptor_01': '蕈兽·掠影', 'gcg_gargoyle_ground': '魔像禁卫',
 }
 
+# 官方 7.1 数据对齐：TCG 卡名取自 GCGCharExcelConfigData(voiceSwitch) + TextMapCHS；
+# 角色排序取自 AvatarExcelConfigData 的 iconName → 官方 ID（见 id_by_icon）
+NAME_OVERRIDES.update({
+    'gcg_abyss_electric': '雷深渊法师', 'gcg_abyss_fire': '火深渊法师',
+    'gcg_abyss_ice': '冰深渊法师', 'gcg_abyss_water': '水深渊法师',
+    'gcg_dahaka': '若陀龙王', 'gcg_darkwraithrock': '黑蛇骑士·摧岩之钺',
+    'gcg_darkwraithwind': '黑蛇骑士·斩风之剑', 'gcg_defender': '遗迹守卫',
+    'gcg_eremite_female_slim_pushdagger_01': '镀金旅团·沙中净水',
+    'gcg_eremite_male_standard_glaive_01': '镀金旅团·炽阳凝冰',
+    'gcg_eremite_male_strong_katar_01': '镀金旅团·魔岩役使',
+    'gcg_eremite_polearm_01': '镀金旅团·白日鸣雷',
+    'gcg_fatuus_escadron_ice_01': '愚人众·霜役人',
+    'gcg_flamingoprimo': '金焰绒翼龙暴君', 'gcg_fungus_raptor_01': '翠翎恐蕈',
+    'gcg_fungus_unuanudatta_01': '有翼冰本真蕈', 'gcg_gargoyle_ground': '遗迹龙兽·地巡',
+    'gcg_gravitas': '实验性场力发生装置', 'gcg_hermitcrabprimo': '铁甲熔火帝皇',
+    'gcg_hili': '雷箭丘丘人', 'gcg_hookwalkerprimo': '贪食匿叶龙山王',
+    'gcg_hound_riftstalker_rock': '嗜岩·兽境猎犬', 'gcg_riftstalker_electric': '嗜雷·兽境猎犬',
+    'gcg_machinaiustitia_bradamante': '歼灭特化型机关', 'gcg_machinaiustitia_pylon': '机关·算力增幅器',
+    'gcg_mimik_fire': '炽热骗骗花', 'gcg_narcissusborn': '水形幻人', 'gcg_necalevia': '浊水幻灵',
+    'gcg_planelurker': '黄金王兽', 'gcg_ptahur_devourer': '吞星之鲸',
+    'gcg_ruggieromelee': '攻坚特化型机关', 'gcg_ruggieroranged': '压制特化型机关',
+    'gcg_samurai_ronin_02': '野伏·火付番', 'gcg_samurai_ronin_03': '野伏·机巧番',
+    'gcg_seahorseprimo': '千年珍珠骏麟', 'gcg_shaman': '草丘丘萨满', 'gcg_slime_01': '冰史莱姆',
+    'gcg_theabyssxiuhcoatl': '蚀灭的源焰之主', 'gcg_udugan': '灵觉隐修的迷者',
+})
+
 def fn_lower(s):
     return (s or '').lower()
 
@@ -136,6 +162,18 @@ def main():
         if m:
             av_by_norm[norm(m.group(1))] = m.group(1)
             id_by_norm[norm(m.group(1))] = a.get('id')
+    # 官方 ID（iconName 侧）：优先于 imageName（新版 imageName 存在打乱/重复）
+    id_by_icon = {}
+    for a in av:
+        ic = a.get('iconName') or ''
+        aid = a.get('id')
+        if ic.startswith('UI_AvatarIcon_') and aid and aid < 10000900 and not (11000000 <= aid < 12000000):
+            nm2 = ic[14:]
+            if nm2.endswith(('_Circle', '_Card', '_Side', '_Official')):
+                continue
+            k2 = norm(nm2)
+            if k2 not in id_by_icon or aid < id_by_icon[k2]:
+                id_by_icon[k2] = aid
     code2avatar = {}
     for k, v in chs.items():
         src = (v.get('sourceFileName') or '').lower()
@@ -226,7 +264,9 @@ def main():
             key = norm(an) if an and norm(an) in av_by_norm else norm(eid)
             imgname = av_by_norm.get(key, an or eid)
             cname = NAME_OVERRIDES.get(eid) or code2name.get(eid) or imgname
-            order = id_by_norm.get(key, 900000)
+            order = id_by_icon.get(norm(an)) if an else None
+            if order is None:
+                order = id_by_icon.get(norm(eid)) or id_by_norm.get(key, 900000)
             img_ok = (os.path.exists(os.path.join(ROOT, 'assets', 'bg', eid + '.jpg'))
                       or os.path.exists(os.path.join(ROOT, 'assets', 'bg', 'orig', eid + '.png')))
         cats_sorted = []
