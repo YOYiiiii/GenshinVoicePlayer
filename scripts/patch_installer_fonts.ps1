@@ -25,6 +25,11 @@ ExecSql "UPDATE TextStyle SET FaceName='Microsoft YaHei UI', Size=9 WHERE TextSt
 ExecSql "UPDATE TextStyle SET FaceName='Microsoft YaHei UI', Size=11, Color='1F3864' WHERE TextStyle='WixUI_Font_Title'"
 ExecSql "UPDATE TextStyle SET FaceName='Microsoft YaHei UI', Size=15, Color='1F3864' WHERE TextStyle='WixUI_Font_Bigger'"
 
+# 进度页排版安全间距：文本行加高、进度条下移，避免高 DPI/长文本时与进度条挤压
+ExecSql "UPDATE Control SET Height=13 WHERE Dialog_='ProgressDlg' AND Control='ActionText'"
+ExecSql "UPDATE Control SET Height=13 WHERE Dialog_='ProgressDlg' AND Control='StatusLabel'"
+ExecSql "UPDATE Control SET Y=124 WHERE Dialog_='ProgressDlg' AND Control='ProgressBar'"
+
 $exists = $false
 $view = $db.GetType().InvokeMember('OpenView', 'InvokeMethod', $null, $db, @("SELECT Value FROM Property WHERE Property='DefaultUIFont'"))
 $view.GetType().InvokeMember('Execute', 'InvokeMethod', $null, $view, $null)
