@@ -182,10 +182,13 @@ for code in codes:
         miss.append(code)
 
 # 扩展头像来源：所有缺头像的条目按名称匹配官方图像
-#   ① 剧情 NPC：UI\NPC 全区（Quest/各地区）+ NPCPic/NPCIcon（如 若娜瓦/凯瑟琳/查尔斯）
-#   ② 七圣召唤怪物：TCG 怪物/敌人图标 或 魔物图鉴 UI\MonsterIcon（如 史莱姆/恩德盖）
+#   ① 未实装/剧情角色头像图库 UI\AvatarIcon（如 艾莉丝/冰之女皇/瓦列里）
+#   ② 剧情 NPC：UI\NPC 全区（Quest/各地区）+ NPCPic/NPCIcon（如 若娜瓦/凯瑟琳/查尔斯）
+#   ③ TCG NPC 图标 UI\Gcg\NPC\<地区>（如 蒂玛乌斯/玛乔丽/瓦格纳）
+#   ④ 七圣召唤怪物：TCG 怪物/敌人图标 或 魔物图鉴 UI\MonsterIcon（如 史莱姆/恩德盖）
 NPC_ALIAS = {'dottore': 'IlDotorre', 'pierro': 'IlPierro', 'pantalone': 'IlPantalone',
-             'signora': 'LaSignora', 'barkeeper': 'Charles'}
+             'signora': 'LaSignora', 'barkeeper': 'Charles',
+             'tips_alchemy': 'Timaeus', 'tips_anemosigil': 'Marjorie', 'tips_weapon': 'Wagner'}
 NPC_REGIONS = {'mengde', 'liyue', 'inazuma', 'sumeru', 'fontaine', 'natlan', 'snezhnaya',
                'nodkrai', 'quest', 'questabysswar', 'paimon', 'vintage', 'vinatge', 'unknown', 'sideicon'}
 GCG_ALIAS = {
@@ -229,6 +232,19 @@ def comp_avatar(src, code):
         os.path.join(avatardir, code + '.png'), optimize=True)
 
 
+def plain_match(index, key):
+    if len(key) < 4:
+        return None
+    if key in index:
+        return index[key]
+    best = None
+    for k, path in index.items():
+        if len(k) >= 4 and (key.startswith(k) or k.startswith(key)):
+            if best is None or len(k) > len(best[0]):
+                best = (k, path)
+    return best[1] if best else None
+
+
 npc_idx = {}
 for prio, folder, prefix in [
         (0, os.path.join(CLASSIFIED, 'UI', 'NPC'), 'UI_NPC_'),
@@ -258,6 +274,19 @@ for prio, folder, prefix in [
                 if k not in gcg_idx or prio < gcg_idx[k][0]:
                     gcg_idx[k] = (prio, os.path.join(dp, f))
 
+gcg_npc_idx = {}
+for dp, dn, fn in os.walk(os.path.join(CLASSIFIED, 'UI', 'Gcg', 'NPC')):
+    for f in fn:
+        if f.startswith('UI_Gcg_NPC_') and f.endswith('.png'):
+            parts = f[11:-4].split('_')
+            if parts and norm(parts[0]) in NPC_REGIONS:
+                parts = parts[1:]
+            if not parts or parts[0].lower() == 'circle':
+                continue
+            for k in {norm(parts[0]), norm('_'.join(parts))}:
+                if len(k) >= 3:
+                    gcg_npc_idx.setdefault(k, os.path.join(dp, f))
+
 extra_add = 0
 for c in idx['characters']:
     code = c['id']
@@ -275,7 +304,11 @@ for c in idx['characters']:
         p = EXTRA_SINGLE[code]
         src = p if os.path.exists(p) else None
     else:
-        src = norm_match(npc_idx, norm(NPC_ALIAS.get(code, code)))
+        src = plain_match(ai_idx, norm(code))
+        if not src:
+            src = plain_match(gcg_npc_idx, norm(NPC_ALIAS.get(code, code)))
+        if not src:
+            src = norm_match(npc_idx, norm(NPC_ALIAS.get(code, code)))
     if src:
         try:
             comp_avatar(src, code)
