@@ -11,7 +11,6 @@ OUT = os.path.join(ROOT, 'installer-ui')
 os.makedirs(OUT, exist_ok=True)
 ART = r'E:\Genshin\Texture2D-classified\UI\Reputation\Bg\SnezhnayaOffering\UI_Reputation_Bg_SnezhnayaOffering_01_Clearer_02.png'
 ICO = os.path.join(ROOT, 'app-src', 'VoicePlayer', 'app.ico')
-GOLD = (222, 186, 110)
 WHITE = (255, 255, 255)
 
 art = Image.open(ART).convert('RGB')
@@ -63,7 +62,6 @@ frost = mica(clear, blur=6, white=0.72, sat=0.9, light=1.04)
 # 右侧 ~130px 露出较清晰的原图（云母渐隐过渡），文字区保持纯净
 mask = hgrad((W, H), 330, 375, 0, 255)     # 0=用云母, 255=用清晰原图 → 左侧云雾、右侧露出立绘
 ban = Image.composite(clear, frost, mask)
-d = ImageDraw.Draw(ban)
 icon_w = 30
 ico = Image.open(ICO).convert('RGBA').resize((icon_w, icon_w), Image.LANCZOS)
 shadow = Image.new('RGBA', (icon_w, icon_w), (0, 0, 0, 0))
@@ -71,8 +69,6 @@ sd = ImageDraw.Draw(shadow)
 sd.ellipse([2, 2, icon_w - 2, icon_w - 2], fill=(10, 20, 40, 80))
 ban.paste(shadow, (450, 14), shadow)
 ban.paste(ico, (450, 14), ico)
-d = ImageDraw.Draw(ban)
-d.rectangle([0, H - 3, W, H], fill=GOLD)
 ban.save(os.path.join(OUT, 'banner.bmp'))
 ban.save(os.path.join(OUT, 'preview-banner.png'))
 
@@ -82,8 +78,6 @@ clear = crop_ratio(W, H, 0.47)
 frost = mica(clear, blur=8, white=0.84, sat=0.85, light=1.05)
 mask = hgrad((W, H), 140, 200, 0, 255)     # 左栏清晰立绘 → 右侧云母文字区
 dlg = Image.composite(frost, clear, mask)
-d = ImageDraw.Draw(dlg)
-d.rectangle([150, 0, 152, H], fill=GOLD)
 # 云母面加一层顶部微弱高光，更现代
 hl = Image.new('RGBA', (W, H), (0, 0, 0, 0))
 hd = ImageDraw.Draw(hl)
@@ -101,8 +95,6 @@ vd = ImageDraw.Draw(v)
 for y in range(H):
     vd.line([(0, y), (W, y)], fill=int(255 * (1 - 0.18 * y / H)))
 bg = Image.composite(frost, Image.new('RGB', (W, H), WHITE), v)
-d = ImageDraw.Draw(bg)
-d.rectangle([0, 0, W, 3], fill=GOLD)
 bg.save(os.path.join(OUT, 'background.bmp'))
 bg.save(os.path.join(OUT, 'preview-background.png'))
 

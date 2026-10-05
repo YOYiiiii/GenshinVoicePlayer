@@ -7,14 +7,19 @@
     --music 璃月           启动并打开指定音乐分组
 
 【安装包】（dist\原神语音播放器-Setup-1.0.0.msi 或 GitHub Release 下载）
-  双击进入中文向导：云母（Mica）质感皮肤，背景 = 至冬供奉大图
-  （UI_Reputation_Bg_SnezhnayaOffering_01_Clearer_02；换图：改 scripts\build_installer_ui.py
-  中 ART 一行后 py scripts\build_installer_ui.py 重新生成 installer-ui\*.bmp 再重建 MSI）
-  横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下依然清晰、无重叠）
+  双击进入中文向导：云母（Mica）质感皮肤，背景 = 至冬供奉大图，无金线装饰
+  （换图：改 scripts\build_installer_ui.py 中 ART 一行后 py scripts\build_installer_ui.py
+  重新生成 installer-ui\*.bmp 再重建 MSI）
+  字体全向导统一 Microsoft YaHei UI，标题/正文分级（大标题 15 / 页标题 11 粗体 / 正文 9）；
+  横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下清晰、无重叠）；
+  欢迎页大标题经 installer-strings.zh-CN.wxl 定制（"欢迎使用 原神语音播放器"），与内页功能标题区分
   默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
   自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
   GitHub：github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0
-  重新构建：py scripts\build_installer.py → wix build installer.wxs -ext WixToolset.UI.wixext -culture zh-CN
+  重新构建三步：
+    1) py scripts\build_installer.py
+    2) wix build installer.wxs installer-strings.zh-CN.wxl -ext WixToolset.UI.wixext -culture zh-CN
+    3) powershell -File scripts\patch_installer_fonts.ps1   （统一字体，必须最后执行）
 
 【v2 更新内容】（按需求）
   1. 立绘使用【原始解包 PNG 原图】（assets\bg\orig\，RGBA 带透明通道、逐字节复制未做任何处理）；
