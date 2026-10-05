@@ -1,1 +1,1 @@
-dist/VoicePlayer-Setup-1.0.0.msi filter=lfs diff=lfs merge=lfs -text
+dist/*.exe filter=lfs diff=lfs merge=lfs -text

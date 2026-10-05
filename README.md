@@ -2,7 +2,7 @@
 
 > 本地全量语音 & 地区音乐播放器 · 全部音频从游戏包**实时解包**，本地零音频存储
 
-[![.NET](https://img.shields.io/badge/.NET-10-512BD4)](https://dotnet.microsoft.com/) [![WiX](https://img.shields.io/badge/Installer-WiX%205-blue)](https://wixtoolset.org/) [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6)](#) [![LFS](https://img.shields.io/badge/Git-LFS-F64935)](https://git-lfs.com/)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4)](https://dotnet.microsoft.com/) [![Inno Setup](https://img.shields.io/badge/Installer-Inno%20Setup%206-blue)](https://jrsoftware.org/isinfo.php) [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6)](#) [![LFS](https://img.shields.io/badge/Git-LFS-F64935)](https://git-lfs.com/)
 
 基于 WPF（.NET 10）的《原神》语音浏览器：**169,463 条语音 + 105 首音乐**，按需从本机
 `YuanShen_Data\StreamingAssets\AudioAssets` 解包 `.wem` → WAV 实时播放，不预转码、不占额外磁盘
@@ -23,16 +23,15 @@ app\VoicePlayer.exe                    （自包含，无需安装运行时）
 
 ## 📥 安装包
 
-- 下载：`dist\原神语音播放器-Setup-1.0.0.msi` 或 [Releases](https://github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0)（`VoicePlayer-Setup-1.0.0.msi`）
-- 双击进入中文向导：云母（Mica）质感皮肤，背景 = 至冬供奉大图，无金线装饰
-- 字体全向导统一 Microsoft YaHei UI（大标题 15 / 页标题 11 粗体 / 正文 9）；标题由安装器原生绘制（高 DPI 清晰、无重叠）
-- 检测到已安装旧版本时，第 2 页为【安装选项】：
-  - **更新到新版本（默认）**——先卸载旧版本，再安装新版本
-  - **修复现有安装** / **移除现有安装**——内置 VBScript 动作静默调用 msiexec 执行
-- 已安装状态下双击 = 维护向导（修改 / 修复 / 移除）；进度页文本与进度条保持安全间距（高 DPI 不遮挡）
-- 默认路径 `D:\Program Files (x86)\原神语音播放器`（向导中可更改），**无需管理员权限**
-- 自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
-- 换皮肤图：改 `scripts\build_installer_ui.py` 中 `ART` 一行 → 重跑生成 → 重建 MSI
+- 下载：`dist\原神语音播放器-安装程序-1.0.0.exe` 或 [Releases](https://github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0)（`VoicePlayer-Setup-1.0.0.exe`）
+- **Inno Setup 6** 单文件安装程序（不再使用 MSI/Windows Installer，彻底避开 `Config.Msi` 回滚目录的安全权限问题——D 盘安装/更新/卸载全程零报错）
+- 双击进入现代风格中文向导：至冬供奉云母质感侧图；默认路径 `D:\Program Files (x86)\原神语音播放器`（可更改），**无需管理员权限**
+- 已安装状态下再次双击 = 维护对话框：
+  - **更新/修复（默认）**——重新安装全部文件到原目录
+  - **卸载** / **取消**
+- 静默安装 `安装程序.exe /VERYSILENT /SUPPRESSMSGBOXES`；静默卸载 `unins000.exe /VERYSILENT`
+- 自动创建桌面 + 开始菜单快捷方式；换向导侧图：改 `scripts\make_inno_branding.py` 中 `ART` 一行 → 重跑 → 重新编译
+- 旧版 MSI 已弃用；如装过旧 MSI 版，请先在 设置→应用 中卸载旧版
 
 ## ✨ 功能
 
@@ -67,21 +66,19 @@ VoicePlayer\
 ├─ app\            播放器（自包含，含 vgmstream 解码器）  ← 直接运行 VoicePlayer.exe
 ├─ data\           index.json + entries\*.json（256 条目 / 169,463 条语音）
 ├─ assets\bg\      立绘 orig / 头像 / 地区背景（无音频）
-├─ scripts\        数据构建脚本 + 安装包构建/补丁 + tools\（hk4e.map 等）
+├─ scripts\        数据构建脚本 + 安装包构建（installer_inno.iss）+ tools\（hk4e.map 等）
 ├─ app-src\        WPF 源码（dotnet publish -r win-x64 --self-contained true 重建）
-├─ installer-ui\   安装向导皮肤（云母质感三件套 bmp）
+├─ installer-ui\   安装向导品牌图（make_inno_branding.py 生成）
 ├─ dist\           安装包输出（ASCII 名走 Git LFS）
 ├─ README-说明.txt / 技术栈与架构说明.md
 ```
 
-## 🔧 构建安装包（4 步，顺序不可换）
+## 🔧 构建安装包（一步）
 
 ```bat
-py scripts\build_installer_ui.py
-py scripts\build_installer.py
-wix build installer.wxs installer-strings.zh-CN.wxl -ext WixToolset.UI.wixext -culture zh-CN -o "dist\原神语音播放器-Setup-1.0.0.msi"
-powershell -File scripts\patch_installer_fonts.ps1
+"%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" scripts\installer_inno.iss
 ```
+输出 `dist\原神语音播放器-安装程序-1.0.0.exe`（复制 ASCII 名 `VoicePlayer-Setup-1.0.0.exe` 用于 Release）
 
 ## 🔄 游戏更新后刷新数据
 
@@ -102,9 +99,9 @@ py scripts\build_music_source.py     :: 有新音乐时（映射表来自 AnimeW
 | 音频解码 | vgmstream-cli（`.wem` → WAV）+ WPF MediaPlayer |
 | 容器解析 | 自研 AKPK 解析器（64 位哈希 / 32 位 Wwise ID 定位） |
 | 数据管线 | Python 3（映射表 / 曲目 / 立绘 / 文本离线构建） |
-| 安装包 | WiX Toolset 5.0.2 + WixUI 扩展（自定义对话框 + VBScript 动作 + post-build 补丁） |
+| 安装包 | Inno Setup 6（单文件 exe、维护对话框、静默参数、云母质感向导图） |
 
-> 详细架构（播放链路 / 数据管线 / MSI 架构）见 [技术栈与架构说明.md](技术栈与架构说明.md)
+> 详细架构（播放链路 / 数据管线 / Inno 安装包架构）见 [技术栈与架构说明.md](技术栈与架构说明.md)
 
 ## 🩺 自检
 

@@ -9,7 +9,7 @@ installer-ui/preview-*.png
 
 # ── dist：只保留 ASCII 名安装包（走 LFS），其余忽略 ────────
 dist/*
-!dist/VoicePlayer-Setup-1.0.0.msi
+!dist/VoicePlayer-Setup-1.0.0.exe
 
 # ── 本机配置与临时文件 ─────────────────────────────
 config.json

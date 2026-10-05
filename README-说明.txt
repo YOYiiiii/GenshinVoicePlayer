@@ -6,24 +6,19 @@
     --open wodyanitsa      启动并打开指定角色
     --music 璃月           启动并打开指定音乐分组
 
-【安装包】（dist\原神语音播放器-Setup-1.0.0.msi 或 GitHub Release 下载）
-  双击进入中文向导：云母（Mica）质感皮肤，背景 = 至冬供奉大图，无金线装饰
-  （换图：改 scripts\build_installer_ui.py 中 ART 一行后 py scripts\build_installer_ui.py
-  重新生成 installer-ui\*.bmp 再重建 MSI）
-  字体全向导统一 Microsoft YaHei UI，标题/正文分级（大标题 15 / 页标题 11 粗体 / 正文 9）；
-  检测到已安装旧版本时，第 2 页为【安装选项】：更新到新版本（推荐，先卸载旧版本再安装新版本）/
-  修复现有安装 / 移除现有安装；不选择时默认更新；修复/移除由内置 VBScript 动作调用 msiexec 执行
-  已安装状态下双击 = 维护向导（修改/修复/移除）；进度页文本与进度条保持安全间距（高 DPI 不遮挡）
-  横幅不放烘焙文字：页面标题/描述由安装器原生绘制（高 DPI 缩放下清晰、无重叠）；
-  欢迎页大标题经 installer-strings.zh-CN.wxl 定制（"欢迎使用 原神语音播放器"），与内页功能标题区分
-  默认路径 D:\Program Files (x86)\原神语音播放器（向导中可更改），无需管理员权限；
-  自动创建桌面 + 开始菜单快捷方式；卸载：设置→应用
+【安装包】（dist\原神语音播放器-安装程序-1.0.0.exe 或 GitHub Release 下载）
+  基于 Inno Setup 6（不再使用 MSI/Windows Installer，从根本上避开 Config.Msi
+  回滚目录的安全权限问题——D 盘安装、更新、卸载全程零报错）
+  双击进入中文向导：现代风格 + 至冬供奉云母质感侧图；默认路径 D:\Program Files (x86)\原神语音播放器
+  （向导中可更改），无需管理员权限；自动创建桌面 + 开始菜单快捷方式
+  已安装状态下再次双击 = 维护对话框【更新/修复（重新安装全部文件）/ 卸载 / 取消】，默认更新
+  静默安装：安装程序.exe /VERYSILENT /SUPPRESSMSGBOXES；静默卸载：unins000.exe /VERYSILENT
+  卸载：维护对话框选"卸载"，或设置→应用，或安装目录 unins000.exe
+  （旧版 MSI 安装包已弃用；如机器上装过旧 MSI 版，请先在设置→应用中卸载旧版）
   GitHub：github.com/YOYiiiii/GenshinVoicePlayer/releases/tag/v1.0.0
   仓库为全量备份（app 运行时 + assets 素材 + 源码 + 安装包走 Git LFS），克隆即得完整工程
-  重新构建三步：
-    1) py scripts\build_installer.py
-    2) wix build installer.wxs installer-strings.zh-CN.wxl -ext WixToolset.UI.wixext -culture zh-CN
-    3) powershell -File scripts\patch_installer_fonts.ps1   （统一字体，必须最后执行）
+  重新构建：& "C:\Users\<你>\AppData\Local\Programs\Inno Setup 6\ISCC.exe" scripts\installer_inno.iss
+  （改安裝包向导图：改 scripts\make_inno_branding.py 中 ART 一行后 py 之，再重编译）
 
 【v2 更新内容】（按需求）
   1. 立绘使用【原始解包 PNG 原图】（assets\bg\orig\，RGBA 带透明通道、逐字节复制未做任何处理）；
@@ -91,10 +86,12 @@
   scripts\build_quest_codes.py    任务代码→中文分类名（官方 Quest/Chapter 数据，输出 quest_codes.json）
   scripts\build_music_source.py   音乐曲目实时解包数据（需 hk4e.map 7.1 + 本机 Music pck 验证）
   scripts\fetch_original_art.py   立绘/头像/地区图更新
-  scripts\build_installer.py      生成 installer.wxs（MSI 安装包定义）
-  scripts\build_installer_ui.py   生成安装向导皮肤（installer-ui\*.bmp，云母立绘主题）
-  scripts\patch_installer_fonts.ps1  安装包字体统一 + 进度页排版（MSI 构建后必须执行）
-  scripts\RemoveOldProducts.vbs / RepairOldProducts.vbs  安装向导"修复/移除"内置动作
+  scripts\installer_inno.iss      安装包定义（Inno Setup 6；维护对话框/静默参数见文件头注释）
+  scripts\ChineseSimplified.isl   Inno 简体中文语言包（来自 kira-96 官方维护翻译）
+  scripts\make_inno_branding.py   生成安装向导竖版品牌图（installer-ui\inno-wizard-164x314.bmp）
+  scripts\build_installer.py      历史遗留：旧 MSI 定义生成器（已弃用，不再随包分发）
+  scripts\build_installer_ui.py   历史遗留：旧 MSI 向导皮肤生成（已弃用）
+  scripts\patch_installer_fonts.ps1  历史遗留：旧 MSI 字体补丁（已弃用）
   app-src\        WPF 源码（dotnet publish -r win-x64 --self-contained true 重建）
 
 【游戏更新后刷新】
