@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import io
+import io, os
 
 TEXT = """「原神语音播放器」用户须知与许可
 
@@ -29,5 +29,6 @@ def esc(s):
 rtf = r'{\rtf1\ansi\ansicpg936\deff0{\fonttbl{\f0\fnil\fcharset134 Microsoft YaHei;}}' + '\n' + \
       r'\viewkind4\uc1\pard\f0\fs20 ' + esc(TEXT) + '}'
 
-io.open(r'E:\Genshin\Collections\VoicePlayer\license.rtf', 'w', encoding='ascii').write(rtf)
+io.open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'license.rtf'),
+        'w', encoding='ascii').write(rtf)
 print('license.rtf written')

@@ -1,11 +1,12 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """复制解包原始立绘 PNG 到 assets\\bg\\orig\\（零处理），并生成 96x96 头像缩略图到 assets\\bg\\avatar\\
 头像优先使用官方头像图标 UI_AvatarIcon_*（透明底合成深色）；无图标时回退为按透明通道密度重心从立绘裁切。"""
-import os, io, re, json, shutil
+import os, io, re, json, shutil, tempfile
 
-T = r'C:\Users\ONE\AppData\Local\Temp\opencode'
-ROOT = r'E:\Genshin\Collections\VoicePlayer'
-CLASSIFIED = r'E:\Genshin\Texture2D-classified'
+T = os.environ.get('ANIMEGAME_TMP') or os.path.join(tempfile.gettempdir(), 'opencode')
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 解包素材目录（Texture2D 分类结果）：可用 TEXTURE2D_DIR 覆盖
+CLASSIFIED = os.environ.get('TEXTURE2D_DIR') or os.path.join(os.path.dirname(os.path.dirname(ROOT)), 'Texture2D-classified')
 AV = os.path.join(CLASSIFIED, 'UI', 'Gacha', 'AvatarImg')
 AVICON = os.path.join(CLASSIFIED, 'UI', 'AvatarIcon')
 LOADING = os.path.join(CLASSIFIED, 'UI', 'LoadingPic')

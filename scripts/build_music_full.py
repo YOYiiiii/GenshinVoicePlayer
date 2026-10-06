@@ -18,7 +18,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.join(HERE, 'tools')
 ROOT = os.path.dirname(HERE)
 IDX = os.path.join(ROOT, 'data', 'index.json')
-AUDIO = r'D:\Program Files\miHoYo Launcher\games\Genshin Impact\Genshin Impact Game\YuanShen_Data\StreamingAssets\AudioAssets'
+# 游戏音频目录（官方默认安装路径）：可用 AUDIO_ROOT 覆盖
+AUDIO = os.environ.get('AUDIO_ROOT') or (
+    r'D:\Program Files\miHoYo Launcher\games\Genshin Impact\Genshin Impact Game'
+    r'\YuanShen_Data\StreamingAssets\AudioAssets')
 APPLY = '--apply' in sys.argv
 
 sys.path.insert(0, TOOLS)

@@ -3,8 +3,11 @@
 import os
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw
 
-ROOT = r'E:\Genshin\Collections\VoicePlayer'
-ART = r'E:\Genshin\Texture2D-classified\UI\Reputation\Bg\SnezhnayaOffering\UI_Reputation_Bg_SnezhnayaOffering_01_Clearer_02.png'
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 向导侧图源文件：可用 TEXTURE2D_DIR 覆盖
+ART = os.path.join(os.environ.get('TEXTURE2D_DIR') or os.path.join(os.path.dirname(os.path.dirname(ROOT)), 'Texture2D-classified'),
+                   'UI', 'Reputation', 'Bg', 'SnezhnayaOffering',
+                   'UI_Reputation_Bg_SnezhnayaOffering_01_Clearer_02.png')
 OUT_DIR = os.path.join(ROOT, 'installer-ui')
 os.makedirs(OUT_DIR, exist_ok=True)
 

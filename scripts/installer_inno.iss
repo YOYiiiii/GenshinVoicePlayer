@@ -1,5 +1,5 @@
 ﻿; 原神语音播放器 - Inno Setup 安装脚本
-; 编译: "C:\Users\ONE\AppData\Local\Programs\Inno Setup 6\ISCC.exe" scripts\installer_inno.iss
+; 编译: "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" scripts\installer_inno.iss
 ; 设计要点:
 ;  - 不使用 MSI/Windows Installer（避免 Config.Msi 回滚安全问题）
 ;  - PrivilegesRequired=lowest: 无需管理员权限（per-user 安装）

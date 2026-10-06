@@ -23,14 +23,17 @@
      （Liuyun≠xianyun、Shougun≠raidenShogun、Yae≠yaeMiko）。
      现在直接用**官方幕名**，根本不需要反查角色。
 """
-import os, io, re, json, glob, sys, collections
+import os, io, re, json, glob, sys, collections, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from voice_taxonomy import parse_code
 
-REPO = r'C:\Users\ONE\AppData\Local\Temp\opencode\AnimeGameData'
+# 官方 dump 检出目录：可用 ANIMEGAME_DATA 覆盖
+REPO = (os.environ.get('ANIMEGAME_DATA')
+        or os.path.join(os.environ.get('ANIMEGAME_TMP') or tempfile.gettempdir(),
+                        'opencode', 'AnimeGameData'))
 B = os.path.join(REPO, 'BinOutput')
 OUT = os.path.join(HERE, 'quest_codes.json')
 ENT = os.path.join(ROOT, 'data', 'entries')

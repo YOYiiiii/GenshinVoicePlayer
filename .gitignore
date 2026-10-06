@@ -15,3 +15,8 @@ dist/*
 config.json
 selftest.txt
 *.log
+
+# ── Python 缓存（不应跟踪）──────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo

@@ -5,11 +5,12 @@
   data/index.json            角色/音乐索引
   data/entries/<id>.json     每个角色/群像的语音条目（含 pck/hash 供按需解包）
 """
-import os, io, re, sys, json, collections, shutil
+import os, io, re, sys, json, collections, shutil, tempfile
 
 bs = chr(92)
-T = r'C:\Users\ONE\AppData\Local\Temp\opencode'
-ROOT = r'E:\Genshin\Collections\VoicePlayer'
+# 官方 dump 检出目录：可用 ANIMEGAME_TMP 覆盖（默认落在系统临时目录）
+T = os.environ.get('ANIMEGAME_TMP') or os.path.join(tempfile.gettempdir(), 'opencode')
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 ENTRIES = os.path.join(DATA, 'entries')
 
@@ -147,7 +148,7 @@ def main():
     # ---------- 基础数据 ----------
     rows = [l.split('\t') for l in io.open(os.path.join(T, 'voice-selection.tsv'), encoding='utf-8').read().splitlines()]
     # voice-selection 只有菜单类；这里改用全量映射表
-    mp = r'E:\Genshin\Collections\Voice-Mapping\语音映射表-7.1-CN.tsv'
+    mp = os.path.join(os.path.dirname(ROOT), 'Voice-Mapping', '语音映射表-7.1-CN.tsv')
     allrows = [l.split('\t') for l in io.open(mp, encoding='utf-8').read().splitlines()[1:]]
     print('全量语音行:', len(allrows))
     # 名字：chs 索引(全类别) + 立绘 meta
