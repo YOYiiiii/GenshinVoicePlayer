@@ -1,1 +1,2 @@
-dist/*.exe filter=lfs diff=lfs merge=lfs -text
+# 本仓库只公开「代码与构建脚本」，不含游戏素材 / 台词数据 / 编译产物（见 .gitignore）。
+# 因此这里不再需要 LFS 规则；若将来重新纳入大文件，再按需添加 filter=lfs。
