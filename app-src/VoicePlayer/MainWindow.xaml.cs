@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace VoicePlayer
         public string Display { get; set; }
         public string Sub { get; set; }
         public string Group { get; set; }
+        /// <summary>别名（同一个角色在台词里出现过的其它名字，如「黑蛋」之于「宁宁·黑蛋」）。
+        /// 只参与搜索匹配，不显示。</summary>
+        public string Alias { get; set; }
         public CharIndex Char { get; set; }
         public MusicGroup Music { get; set; }
     }
@@ -42,6 +46,7 @@ namespace VoicePlayer
     public partial class MainWindow : Window
     {
         private IndexData _index;
+        private Dictionary<string, List<string>> _aliases = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         private string _root;
         private string _audioRoot = @"D:\Program Files\miHoYo Launcher\games\Genshin Impact\Genshin Impact Game\YuanShen_Data\StreamingAssets\AudioAssets";
         private readonly MediaPlayer _mp = new MediaPlayer();
@@ -53,10 +58,13 @@ namespace VoicePlayer
         private readonly List<LeftRow> _allChars = new List<LeftRow>();
         private readonly HashSet<string> _prefetching = new HashSet<string>();
         private string _cacheDir;
+        private double _heroOffX, _heroOffY;   // 立绘实体中心相对画布中心的偏移（图像像素）
+        private bool _heroAlign;               // 是否按实体内容做居中补偿（音乐地区图不参与）
 
         public MainWindow()
         {
             InitializeComponent();
+            HeroImg.SizeChanged += (s, e) => ApplyHeroAlignment();
             var cargs = Environment.GetCommandLineArgs();
             var sit = Array.IndexOf(cargs, "--selftest");
             if (sit >= 0 && sit + 2 < cargs.Length)
@@ -81,6 +89,16 @@ namespace VoicePlayer
                 _root = FindRoot();
                 var json = File.ReadAllText(Path.Combine(_root, "data", "index.json"));
                 _index = JsonSerializer.Deserialize<IndexData>(json);
+                var aliasPath = Path.Combine(_root, "data", "aliases.json");
+                if (File.Exists(aliasPath))
+                {
+                    try
+                    {
+                        _aliases = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(File.ReadAllText(aliasPath))
+                                   ?? _aliases;
+                    }
+                    catch { /* 别名表损坏不影响主流程 */ }
+                }
             }
             catch (Exception ex)
             {
@@ -159,6 +177,8 @@ namespace VoicePlayer
             foreach (var c in _index.Characters)
             {
                 var row = new LeftRow { Char = c, Display = string.IsNullOrEmpty(c.Name) ? c.Id : c.Name, Sub = c.Id + " · " + c.Total + " 条", Group = string.IsNullOrEmpty(c.Group) ? "角色" : c.Group };
+                if (_aliases.TryGetValue(c.Id, out var al) && al != null && al.Count > 0)
+                    row.Alias = " " + string.Join(" ", al);
                 try
                 {
                     if (File.Exists(Path.Combine(_root, "assets", "bg", "avatar", c.Id + ".png"))) row.Icon = LoadImage("bg/avatar/" + c.Id + ".png", 96);
@@ -173,7 +193,10 @@ namespace VoicePlayer
         private void TabChars_Click(object sender, RoutedEventArgs e)
         {
             _musicTab = false;
-            SearchBox.Visibility = Visibility.Visible;
+            TabChars.Tag = "active";
+            TabMusic.Tag = null;
+            SearchBoxRow.Visibility = Visibility.Visible;
+            if (VSearch.Text.Length > 0) VSearch.Text = "";   // 切页签清空，避免把另一页筛空
             ListHint.Text = $"{_index.Characters.Count} 个角色条目 · {_index.Characters.Sum(c => (long)c.Total):N0} 条语音";
             ApplyFilter();
         }
@@ -181,7 +204,11 @@ namespace VoicePlayer
         private void TabMusic_Click(object sender, RoutedEventArgs e)
         {
             _musicTab = true;
-            SearchBox.Visibility = Visibility.Collapsed;
+            TabMusic.Tag = "active";
+            TabChars.Tag = null;
+            // 整行收起：只收 SearchBox 会留下「搜索角色…」的提示文字，看着像能搜
+            SearchBoxRow.Visibility = Visibility.Collapsed;
+            if (VSearch.Text.Length > 0) VSearch.Text = "";
             var rows = new List<LeftRow>();
             foreach (var g in _index.Music)
                 rows.Add(new LeftRow { Music = g, Display = g.Group, Sub = g.Tracks.Count + " 首" });
@@ -195,7 +222,9 @@ namespace VoicePlayer
             var q = (SearchBox.Text ?? "").Trim().ToLowerInvariant();
             var list = string.IsNullOrEmpty(q)
                 ? _allChars
-                : _allChars.Where(r => r.Display.ToLowerInvariant().Contains(q) || r.Sub.ToLowerInvariant().Contains(q)).ToList();
+                : _allChars.Where(r => r.Display.ToLowerInvariant().Contains(q)
+                                       || r.Sub.ToLowerInvariant().Contains(q)
+                                       || (r.Alias != null && r.Alias.ToLowerInvariant().Contains(q))).ToList();
             var lv = new ListCollectionView(list);
             lv.GroupDescriptions.Add(new PropertyGroupDescription("Group"));
             LeftList.ItemsSource = lv;
@@ -223,7 +252,8 @@ namespace VoicePlayer
             }
             else if (row.Char != null)
             {
-                HeaderText.Text = row.Char.Name + " · " + row.Char.Total + " 条语音";
+                HeaderText.Text = row.Char.Name + " · " + row.Char.Total + " 条语音"
+                                  + (row.Char.Vocal > 0 ? "（含 " + row.Char.Vocal + " 条语气音）" : "");
                 try
                 {
                     var json = File.ReadAllText(Path.Combine(_root, "data", "entries", row.Char.Id + ".json"));
@@ -236,7 +266,7 @@ namespace VoicePlayer
                             {
                                 Cat = c.Label + "  (" + c.Items.Count + ")",
                                 Text = it.Length > 3 ? it[3] : "",
-                                Label = (it.Length > 3 && !string.IsNullOrEmpty(it[3])) ? it[3] : PrettyName(it[0]),
+                                Label = (it.Length > 3 && !string.IsNullOrEmpty(it[3])) ? it[3] : FallbackLabel(it),
                                 Path = it.Length > 0 ? it[0] : "",
                                 Pck = it.Length > 1 ? it[1] : "",
                                 Hash = it.Length > 2 ? it[2] : "",
@@ -274,6 +304,15 @@ namespace VoicePlayer
             ("friendship", "角色语音"), ("teamjoin", "加入队伍"), ("teammate_", "队友"), ("fishing_casting", "钓鱼·抛竿"),
         };
 
+        /// <summary>无台词时的可读标签。语气音（战斗/待机音效）标明性质，避免被当成"缺文本"。</summary>
+        private string FallbackLabel(string[] it)
+        {
+            var name = PrettyName(it.Length > 0 ? it[0] : "");
+            var kind = it.Length > 4 ? it[4] : "";
+            if (kind == "vocal") return "语气音 · " + name;
+            return name;
+        }
+
         private string PrettyName(string path)
         {
             var fn = Path.GetFileNameWithoutExtension(path ?? "");
@@ -299,6 +338,7 @@ namespace VoicePlayer
 
         private List<ItemRow> _curRows;
         private bool _curGrouped;
+        private const int DisplayCap = 400;   // 单次搜索最多渲染的行数（计数仍是全量）
         private bool _globalMode = true;
         private List<(string Id, string Name, List<CatGroup> Cats)> _allEntries;
         private bool _allLoading, _allLoaded;
@@ -313,14 +353,18 @@ namespace VoicePlayer
         private void RenderCurrent()
         {
             if (_curRows == null) return;
-            var q = (VSearch.Text ?? "").Trim().ToLowerInvariant();
-            var list = string.IsNullOrEmpty(q)
+            var terms = SearchTerms(VSearch.Text);
+            var list = terms.Length == 0
                 ? _curRows
-                : _curRows.Where(r => (r.Label ?? "").ToLowerInvariant().Contains(q) || (r.Text ?? "").ToLowerInvariant().Contains(q)).ToList();
+                : _curRows.Where(r =>
+                {
+                    var hay = NormSearch(r.Label) + "\u0000" + NormSearch(r.Text) + "\u0000" + NormSearch(r.Cat);
+                    return terms.All(t => hay.Contains(t));
+                }).ToList();
             var view = new ListCollectionView(list);
             if (_curGrouped) view.GroupDescriptions.Add(new PropertyGroupDescription("Cat"));
             VoiceList.ItemsSource = view;
-            HintText.Text = string.IsNullOrEmpty(q) ? "" : $"筛选 {list.Count} / {_curRows.Count} 条";
+            HintText.Text = terms.Length == 0 ? "" : $"筛选 {list.Count} / {_curRows.Count} 条";
         }
 
         private void EnsureAllIndex()
@@ -345,42 +389,96 @@ namespace VoicePlayer
             });
         }
 
+        /// <summary>搜索用归一化：全角 ASCII 转半角、全角空格转半角、转小写。中文不受影响。</summary>
+        private static string NormSearch(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            var sb = new StringBuilder(s.Length);
+            foreach (var ch in s)
+            {
+                var c = ch;
+                if (c >= '\uFF01' && c <= '\uFF5E') c = (char)(c - 0xFEE0);
+                else if (c == '\u3000') c = ' ';
+                sb.Append(char.ToLowerInvariant(c));
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>把查询切成关键词：空格分隔，多个关键词是「与」关系。</summary>
+        private static string[] SearchTerms(string raw)
+        {
+            return (raw ?? "").Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)
+                              .Select(NormSearch).Where(t => t.Length > 0).ToArray();
+        }
+
         private void ApplyRowFilter()
         {
-            if (!_globalMode) { RenderCurrent(); return; }
-            var q = (VSearch.Text ?? "").Trim().ToLowerInvariant();
-            if (q.Length == 0) { RenderCurrent(); return; }
+            // 音乐页只在曲目内按名筛选，不参与「全量台词搜索」——
+            // 否则切到音乐页时，上一条搜索词会把曲目列表整个覆盖掉。
+            if (_musicTab || !_globalMode) { RenderCurrent(); return; }
+            var terms = SearchTerms(VSearch.Text);
+            if (terms.Length == 0) { RenderCurrent(); return; }
             EnsureAllIndex();
             if (!_allLoaded) return;
-            var res = new List<ItemRow>();
+            // 先只收候选与得分，最后才按名次造 ItemRow——避免为 9 万条命中分配对象
+            var cand = new List<(int key, string id, string name, string cat, string[] it)>();
+            int total = 0;
             foreach (var (id, name, cats) in _allEntries)
             {
+                // 条目名与条目 id 都算「条目名命中」：输 aino 也能找到爱诺的台词
+                var nName = NormSearch(name) + "\u0000" + NormSearch(id);
                 foreach (var c in cats)
+                {
+                    var nLabel = NormSearch(c.Label);
                     foreach (var it in c.Items)
                     {
                         var txt = it.Length > 3 ? it[3] : "";
-                        var path = it.Length > 0 ? it[0] : "";
-                        if (((txt ?? "").ToLowerInvariant().Contains(q)) || (path ?? "").ToLowerInvariant().Contains(q))
+                        var nTxt = NormSearch(txt);
+                        var nPath = NormSearch(it.Length > 0 ? it[0] : "");
+                        int score = 0;
+                        bool txtHit = false, ok = true;
+                        foreach (var t in terms)
                         {
-                            res.Add(new ItemRow
-                            {
-                                CharId = id,
-                                Cat = name,
-                                Text = txt,
-                                Label = string.IsNullOrEmpty(txt) ? PrettyName(path) : txt,
-                                Path = path,
-                                Pck = it.Length > 1 ? it[1] : "",
-                                Hash = it.Length > 2 ? it[2] : "",
-                            });
-                            if (res.Count >= 400) goto done;
+                            if (nName.Contains(t)) score += 100;        // 条目名 / 条目 id
+                            else if (nLabel.Contains(t)) score += 40;   // 分组（章节）名
+                            else if (nTxt.Contains(t)) { score += 20; txtHit = true; }   // 台词
+                            else if (nPath.Contains(t)) score += 5;     // 音频路径
+                            else { ok = false; break; }
                         }
+                        if (!ok) continue;
+                        total++;
+                        // 排序：先按命中来源（条目名 > 章节名 > 台词 > 路径）；
+                        // 只有"台词命中"才在同分时短句优先（更像想找的那一句），
+                        // 条目名命中则保持原顺序（否则一堆「唔…」「啊?」会排到最前）。
+                        int tl = txtHit ? (nTxt.Length == 0 ? 1200 : Math.Min(nTxt.Length, 1199)) : 0;
+                        cand.Add((score * 2000 - tl, id, name, c.Label, it));
                     }
+                }
             }
-        done:
+            if (total > DisplayCap)
+                cand.Sort((a, b) => b.key.CompareTo(a.key));
+            var res = new List<ItemRow>();
+            for (int i = 0; i < cand.Count && i < DisplayCap; i++)
+            {
+                var (_, id, name, cat, it) = cand[i];
+                var txt = it.Length > 3 ? it[3] : "";
+                res.Add(new ItemRow
+                {
+                    CharId = id,
+                    Cat = name,
+                    Text = txt,
+                    Label = string.IsNullOrEmpty(txt) ? FallbackLabel(it) : txt,
+                    Path = it.Length > 0 ? it[0] : "",
+                    Pck = it.Length > 1 ? it[1] : "",
+                    Hash = it.Length > 2 ? it[2] : "",
+                });
+            }
             var view = new ListCollectionView(res);
             view.GroupDescriptions.Add(new PropertyGroupDescription("Cat"));
             VoiceList.ItemsSource = view;
-            HintText.Text = $"全量匹配 {res.Count}{(res.Count >= 400 ? "+" : "")} 条";
+            HintText.Text = total > DisplayCap
+                ? $"命中 {total:N0} 条 · 按相关度显示前 {DisplayCap} 条"
+                : $"命中 {total:N0} 条";
         }
 
         private void VSearch_TextChanged(object sender, TextChangedEventArgs e)
@@ -422,7 +520,57 @@ namespace VoicePlayer
             HeroImg.Source = orig != null ? SafeLoad(orig, 0) : (string.IsNullOrEmpty(clear) ? null : SafeLoad(clear, 0));
             HeroImg.Stretch = fill ? Stretch.UniformToFill : Stretch.Uniform;
             HeroImg.Opacity = fill ? 0.5 : 0.94;
-            HeroImg.Margin = fill ? new Thickness(0) : new Thickness(340, 46, 12, 64);
+            // 立绘所在区域由 XAML 中的 HeroImg 层决定（与右侧文本框完全同区），此处不再覆盖 Margin
+
+            // 源 PNG 四周的透明留白并不对称（133 张里 37 张实体中心偏差 >3%），
+            // 只按画布居中的话人物会看起来偏上/偏斜——这里再按实体内容做一次平移补偿。
+            _heroAlign = !fill;
+            _heroOffX = _heroOffY = 0;
+            if (_heroAlign && HeroImg.Source is BitmapSource bs) TryArtOffset(bs, out _heroOffX, out _heroOffY);
+            ApplyHeroAlignment();
+        }
+
+        /// <summary>求不透明区域中心相对画布中心的偏移（图像像素）；全透明或失败返回 false。</summary>
+        private static bool TryArtOffset(BitmapSource bmp, out double offX, out double offY)
+        {
+            offX = offY = 0;
+            try
+            {
+                BitmapSource conv = bmp.Format == PixelFormats.Bgra32
+                    ? bmp
+                    : new FormatConvertedBitmap(bmp, PixelFormats.Bgra32, null, 0);
+                int w = conv.PixelWidth, h = conv.PixelHeight;
+                if (w <= 0 || h <= 0) return false;
+                long bytes = (long)w * 4 * h;
+                if (bytes > 64L * 1024 * 1024) return false;      // 超大图跳过，保持交互流畅
+                int stride = w * 4;
+                var buf = new byte[bytes];
+                conv.CopyPixels(buf, stride, 0);
+                int minX = w, minY = h, maxX = -1, maxY = -1;
+                for (int y = 0, row = 0; y < h; y++, row += stride)
+                    for (int x = 0; x < w; x++)
+                        if (buf[row + x * 4 + 3] >= 128)
+                        {
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                        }
+                if (maxX < 0) return false;
+                offX = (minX + maxX) / 2.0 - w / 2.0;
+                offY = (minY + maxY) / 2.0 - h / 2.0;
+                return true;
+            }
+            catch { return false; }
+        }
+
+        /// <summary>把立绘实体中心对到所在区域中心（Stretch=Uniform 等比，故按渲染宽度换算）。</summary>
+        private void ApplyHeroAlignment()
+        {
+            if (!_heroAlign || (_heroOffX == 0 && _heroOffY == 0)) { HeroImg.RenderTransform = null; return; }
+            if (HeroImg.Source is not BitmapSource bs || bs.PixelWidth <= 0 || HeroImg.ActualWidth <= 0) return;
+            double s = HeroImg.ActualWidth / bs.PixelWidth;       // Uniform → 单一缩放比
+            HeroImg.RenderTransform = new TranslateTransform(-_heroOffX * s, -_heroOffY * s);
         }
 
         /// <summary>原始解包 PNG（未处理）优先：bg/x.jpg -> bg/orig/x.png</summary>
@@ -618,7 +766,7 @@ namespace VoicePlayer
                 DwmSetWindowAttribute(hwnd, 33, ref pref, sizeof(int));
                 int dark = 1; // DWMWA_USE_IMMERSIVE_DARK_MODE
                 DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));
-                int color = 0x1A100B; // DWMWA_BORDER_COLOR ≈ #0B101A（消除白边）
+                int color = 0x171515; // DWMWA_BORDER_COLOR = DSH bg-base #151517（DWM 为 BGR 序，消除白边）
                 DwmSetWindowAttribute(hwnd, 34, ref color, sizeof(int));
             }
             catch { }

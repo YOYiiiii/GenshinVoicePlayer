@@ -5,19 +5,17 @@
         Title="原神语音播放器"
         Height="880" Width="1460" WindowStartupLocation="CenterScreen"
         WindowStyle="None" ResizeMode="CanResize" Icon="app.ico"
-        Background="#0B101A" FontFamily="Microsoft YaHei UI, Microsoft YaHei"
-        Foreground="#F2F6FC" Closed="Window_Closed">
+        Background="{StaticResource DswBgBase}" FontFamily="{StaticResource DswFont}"
+        FontSize="13" Foreground="{StaticResource DswLabelPrimary}" Closed="Window_Closed">
+    <!-- 布局与元素树完全保持原样；本次只替换配色 / 字体 / 字号 / 圆角 -->
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
                             CornerRadius="0" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
-        <LinearGradientBrush x:Key="MicaBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#940E1624" Offset="0"/>
-            <GradientStop Color="#6B0C1420" Offset="0.5"/>
-            <GradientStop Color="#840F1828" Offset="1"/>
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="MicaStroke" Color="#2EFFFFFF"/>
+        <!-- 两张卡片：DSH bg-layer-1 @72%（保留立绘可见性）；描边 DSH border-l2 -->
+        <SolidColorBrush x:Key="MicaBrush" Color="#B8232324"/>
+        <SolidColorBrush x:Key="MicaStroke" Color="#1FFFFFFF"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -26,12 +24,9 @@
             <RowDefinition Height="64"/>
         </Grid.RowDefinitions>
 
-        <!-- ======== 背景层：模糊立绘 → 轻遮罩 → 原图立绘（不动） ======== -->
+        <!-- ======== 背景层：模糊立绘（整窗） → DSH 中性压暗 ======== -->
         <Image x:Name="BlurBg" Grid.Row="0" Grid.RowSpan="3" Stretch="UniformToFill" Opacity="0.85" IsHitTestVisible="False"/>
-        <Rectangle Grid.Row="0" Grid.RowSpan="3" Fill="#5E0A101C" IsHitTestVisible="False"/>
-        <Image x:Name="HeroImg" Grid.Row="0" Grid.RowSpan="3" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
-               Margin="340,46,12,64" Opacity="0.94" IsHitTestVisible="False"
-               RenderOptions.BitmapScalingMode="HighQuality"/>
+        <Rectangle Grid.Row="0" Grid.RowSpan="3" Fill="{StaticResource DswScrim}" IsHitTestVisible="False"/>
 
         <!-- ======== 顶部标题栏（无边框 + 窗控） ======== -->
         <Grid Grid.Row="0" Background="#26000000" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
@@ -44,8 +39,11 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Image Source="logo.png" Width="26" Height="26" Margin="0,0,8,0"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock VerticalAlignment="Center" FontSize="15" FontWeight="Bold" Foreground="#FFE6B0"
-                               Text="原神语音播放器 · 本地全量语音 &amp; 地区音乐"/>
+                    <!-- DSH 标题：13px，主色 + 三级色分列（原来是 15px 金色单色） -->
+                    <TextBlock VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource DswLabelPrimary}" Text="原神语音播放器"/>
+                    <TextBlock VerticalAlignment="Center" FontSize="13"
+                               Foreground="{StaticResource DswLabelTertiary}" Text=" · 本地全量语音 &amp; 地区音乐"/>
                 </StackPanel>
             </DockPanel>
         </Grid>
@@ -57,6 +55,12 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <!-- 立绘层：与右侧文本框完全同区（同一 Margin）→ 始终在文本框内居中；
+                 Stretch=Uniform 保证立绘完整不裁切；声明在面板之前，故位于云母材质之下（透出） -->
+            <Image x:Name="HeroImg" Grid.Column="1" Margin="12,0,0,0" Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.94"
+                   RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
+
             <!-- 左：角色 / 音乐 列表 -->
             <Border Grid.Column="0" CornerRadius="14" Background="{StaticResource MicaBrush}"
                     BorderBrush="{StaticResource MicaStroke}" BorderThickness="1">
@@ -65,21 +69,29 @@
                         <Button x:Name="TabChars" Style="{StaticResource TabBtn}" Content="角色" Click="TabChars_Click"/>
                         <Button x:Name="TabMusic" Style="{StaticResource TabBtn}" Content="地区音乐" Click="TabMusic_Click"/>
                     </UniformGrid>
-                    <Grid DockPanel.Dock="Top" Margin="2,0,2,8">
-                        <TextBox x:Name="SearchBox" Padding="8,6"
-                                 Background="#40141B2A" Foreground="#F2F6FC" BorderBrush="#55FFFFFF" BorderThickness="1"
+                    <Grid x:Name="SearchBoxRow" DockPanel.Dock="Top" Margin="2,0,2,8">
+                        <TextBox x:Name="SearchBox" Style="{StaticResource DswTextBoxSlim}"
                                  TextChanged="SearchBox_TextChanged"/>
-                        <TextBlock x:Name="SearchBoxHint" Text="搜索角色…" Foreground="#66B0C4D8" FontSize="12"
-                                   Margin="10,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                        <Path Data="{StaticResource IconSearch}" Stroke="{StaticResource DswLabelCaption}"
+                              StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                              Width="16" Height="16" Stretch="None"
+                              HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0"
+                              IsHitTestVisible="False"/>
+                        <TextBlock x:Name="SearchBoxHint" Text="搜索角色…" Foreground="{StaticResource DswLabelCaption}" FontSize="12"
+                                   Margin="30,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
                     </Grid>
-                    <TextBlock x:Name="ListHint" DockPanel.Dock="Bottom" Foreground="#9AB0C4D8" FontSize="11" Margin="4,6,0,0"/>
+                    <TextBlock x:Name="ListHint" DockPanel.Dock="Bottom" Foreground="{StaticResource DswLabelCaption}" FontSize="11" Margin="4,6,0,0"/>
                     <ListBox x:Name="LeftList" IsSynchronizedWithCurrentItem="False" SelectionChanged="LeftList_SelectionChanged">
                         <ListBox.GroupStyle>
                             <GroupStyle>
                                 <GroupStyle.HeaderTemplate>
                                     <DataTemplate>
-                                        <Border Margin="2,10,2,4" Padding="8,4" CornerRadius="8" Background="#38FFD08C">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="#FFE6B0"/>
+                                        <!-- DSH 分组头：12px/600 三级色 + layer-2 底 -->
+                                        <Border Margin="2,10,2,4" Padding="8,4" CornerRadius="8" Background="{StaticResource DswGlassFill}">
+                                            <!-- 章节标签最长 37 字，超出用省略号，完整内容看悬停提示 -->
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
+                                                       Foreground="{StaticResource DswLabelTertiary}"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
                                         </Border>
                                     </DataTemplate>
                                 </GroupStyle.HeaderTemplate>
@@ -87,14 +99,21 @@
                         </ListBox.GroupStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="2">
-                                    <Border x:Name="IconBox" Width="44" Height="44" CornerRadius="8" ClipToBounds="True"
-                                            Background="#22FFFFFF" Margin="0,0,10,0">
-                                        <Image Source="{Binding Icon}" Stretch="UniformToFill"/>
+                                <StackPanel Orientation="Horizontal" Margin="2" MinHeight="44">
+                                    <Border x:Name="IconBox" Width="44" Height="44" CornerRadius="22" ClipToBounds="True"
+                                            Background="{StaticResource DswHover}" Margin="0,0,10,0">
+                                        <!-- Border 的 CornerRadius 不会裁切子元素，必须给 Image 自身加椭圆 Clip 才是真圆 -->
+                                        <Image Source="{Binding Icon}" Stretch="UniformToFill">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="22,22" RadiusX="22" RadiusY="22"/>
+                                            </Image.Clip>
+                                        </Image>
                                     </Border>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Display}" FontSize="14" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Sub}" FontSize="11" Foreground="#C9D8EA"/>
+                                        <!-- DSH dsw-font-s-strong-14 = 14/22 600 -->
+                                        <TextBlock Text="{Binding Display}" FontSize="14" FontWeight="SemiBold" LineHeight="22"/>
+                                        <!-- DSH dsw-font-xxxs-11 = 11/14 -->
+                                        <TextBlock Text="{Binding Sub}" FontSize="11" LineHeight="14" Foreground="{StaticResource DswLabelCaption}"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
@@ -117,20 +136,32 @@
                             <Button x:Name="ImportBtn" Style="{StaticResource MiniBtn}" HorizontalAlignment="Right"
                                     Margin="8,0,0,6" Content="导入数据源…" Click="ImportSource_Click"/>
                             <TextBlock x:Name="HintText" VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                       Foreground="#9AB0C4D8" FontSize="11"/>
+                                       Foreground="{StaticResource DswLabelCaption}" FontSize="11"/>
                         </StackPanel>
-                        <TextBlock x:Name="HeaderText" FontSize="22" FontWeight="Bold" Foreground="#FFE6B0" Text="请选择左侧条目"/>
+                        <!-- DSH dsw-font-l-20 = 20/28（原为 22px 金色） -->
+                        <TextBlock x:Name="HeaderText" FontSize="20" LineHeight="28" FontWeight="SemiBold"
+                                   Foreground="{StaticResource DswLabelPrimary}" Text="请选择左侧条目"/>
                     </DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,0,4,8">
-                        <ToggleButton x:Name="ModeAll" Style="{StaticResource MiniToggle}" Content="全量搜索" IsChecked="True" Click="ModeAll_Click"/>
-                        <ToggleButton x:Name="ModeCur" Style="{StaticResource MiniToggle}" Content="当前角色" Click="ModeCur_Click"/>
-                    </StackPanel>
                     <Grid DockPanel.Dock="Top" Margin="4,0,4,8">
-                        <TextBox x:Name="VSearch" Padding="8,6"
-                                 Background="#40141B2A" Foreground="#F2F6FC" BorderBrush="#55FFFFFF" BorderThickness="1"
-                                 TextChanged="VSearch_TextChanged"/>
-                        <TextBlock x:Name="VSearchHint" Text="搜索台词 / 条目名…" Foreground="#66B0C4D8" FontSize="12"
-                                   Margin="10,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ToggleButton x:Name="ModeAll" Style="{StaticResource MiniToggle}" Content="全量搜索" IsChecked="True" Click="ModeAll_Click"/>
+                            <ToggleButton x:Name="ModeCur" Style="{StaticResource MiniToggle}" Content="当前角色" Click="ModeCur_Click"/>
+                        </StackPanel>
+                        <!-- 文案搜索栏与模式切换同一行，省一行高度 -->
+                        <Grid Grid.Column="1" Margin="8,0,0,0">
+                            <TextBox x:Name="VSearch" Style="{StaticResource DswTextBoxSlim}" TextChanged="VSearch_TextChanged"/>
+                            <Path Data="{StaticResource IconSearch}" Stroke="{StaticResource DswLabelCaption}"
+                                  StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Width="16" Height="16" Stretch="None"
+                                  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0"
+                                  IsHitTestVisible="False"/>
+                            <TextBlock x:Name="VSearchHint" Text="搜索台词 / 条目名…" Foreground="{StaticResource DswLabelCaption}" FontSize="12"
+                                       Margin="30,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                        </Grid>
                     </Grid>
                     <ListBox x:Name="VoiceList" Background="Transparent" BorderThickness="0"
                              IsSynchronizedWithCurrentItem="False"
@@ -141,8 +172,11 @@
                             <GroupStyle>
                                 <GroupStyle.HeaderTemplate>
                                     <DataTemplate>
-                                        <Border Margin="2,10,2,4" Padding="8,4" CornerRadius="8" Background="#33FFD08C">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="#FFE6B0"/>
+                                        <Border Margin="2,10,2,4" Padding="8,4" CornerRadius="8" Background="{StaticResource DswGlassFill}">
+                                            <!-- 章节标签最长 37 字，超出用省略号，完整内容看悬停提示 -->
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
+                                                       Foreground="{StaticResource DswLabelTertiary}"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
                                         </Border>
                                     </DataTemplate>
                                 </GroupStyle.HeaderTemplate>
@@ -163,8 +197,9 @@
                                             </ContextMenu>
                                         </Button.ContextMenu>
                                     </Button>
+                                    <!-- DSH 阅读区字号：dsh-content-font-size 默认 14 / 行高 24 -->
                                     <TextBlock Grid.Column="1" Text="{Binding Label}" TextWrapping="Wrap"
-                                               FontSize="14.5" LineHeight="22" VerticalAlignment="Center">
+                                               FontSize="14" LineHeight="24" VerticalAlignment="Center">
                                         <TextBlock.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="导入数据源…" Click="ImportSource_Click"/>
@@ -181,8 +216,8 @@
             </Border>
         </Grid>
 
-        <!-- ======== 底部播放条 ======== -->
-        <Border Grid.Row="2" Background="#660B1220" BorderBrush="#26FFFFFF" BorderThickness="0,1,0,0">
+        <!-- ======== 底部播放条（DSH layer-1 + border-l1）======== -->
+        <Border Grid.Row="2" Background="{StaticResource DswPanelFill}" BorderBrush="{StaticResource DswBorderL1}" BorderThickness="0,1,0,0">
             <Grid Margin="16,6,16,6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -190,17 +225,19 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <DockPanel Grid.Column="0">
-                    <TextBlock x:Name="NowPlaying" DockPanel.Dock="Left" Foreground="#FFD08C" VerticalAlignment="Center"
+                    <TextBlock x:Name="NowPlaying" DockPanel.Dock="Left" Foreground="{StaticResource DswLabelSecondary}" FontSize="12" VerticalAlignment="Center"
                                Width="300" TextTrimming="CharacterEllipsis" Text="就绪"/>
-                    <TextBlock x:Name="TimeText" DockPanel.Dock="Right" Foreground="#B8C6D8" VerticalAlignment="Center"
+                    <!-- 时间用等宽字体（DSH ds-font-family-code） -->
+                    <TextBlock x:Name="TimeText" DockPanel.Dock="Right" Foreground="{StaticResource DswLabelTertiary}" FontSize="12"
+                               FontFamily="{StaticResource DswFontCode}" VerticalAlignment="Center"
                                Margin="10,0,0,0" Text="00:00 / 00:00"/>
-                    <Slider x:Name="PosSlider" Minimum="0" Maximum="1000" Margin="10,0,0,0" VerticalAlignment="Center"
+                    <Slider x:Name="PosSlider" Style="{StaticResource DswSlider}" Minimum="0" Maximum="1000" Margin="10,0,0,0" VerticalAlignment="Center"
                             PreviewMouseLeftButtonDown="PosSlider_Down" PreviewMouseLeftButtonUp="PosSlider_Up"
                             ValueChanged="PosSlider_Changed"/>
                 </DockPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="音量" Foreground="#9AB0C4D8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <Slider x:Name="VolumeSlider" Width="120" Minimum="0" Maximum="1" Value="0.8"
+                    <TextBlock Text="音量" Foreground="{StaticResource DswLabelTertiary}" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <Slider x:Name="VolumeSlider" Style="{StaticResource DswSlider}" Width="120" Minimum="0" Maximum="1" Value="0.8"
                             VerticalAlignment="Center" ValueChanged="VolumeSlider_ValueChanged"/>
                 </StackPanel>
             </Grid>

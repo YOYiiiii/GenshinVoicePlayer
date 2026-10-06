@@ -43,6 +43,8 @@ MERGE = {
     'ronovamortal': 'ronova',
     'noelle': 'noel', 'raidenei': 'raidenshogun', 'scaramouche': 'wanderer',
     'chalortte': 'charlotte', 'emelie': 'emilie', 'n': 'nicole',
+    # 渊上：原被并进 story_lq 群像，现独立成条目（fuchikami = 淵上）
+    'fuchikami': 'yuanshang',
     # 派蒙的全部提示语音
     'tips_hexenzirkel': 'paimon', 'tips_mimitomo': 'paimon', 'tips_fishing': 'paimon',
     'tips_geogoddess': 'paimon', 'tips_goddess': 'paimon', 'tips_nodkrai': 'paimon',

@@ -49,8 +49,8 @@ Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: 
 [Files]
 Source: "..\app\*"; DestDir: "{app}\app"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__,*.log,config.json,selftest.txt"
 Source: "..\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__"
-Source: "..\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__"
-Source: "..\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__,*.iss,*.isl"
+Source: "..\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__,bg\orig,bg\orig\*"
+Source: "..\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__,*.iss,*.isl,*.bak-*,*.prev"
 Source: "..\README-说明.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\技术栈与架构说明.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\config.json.example"; DestDir: "{app}"; Flags: ignoreversion

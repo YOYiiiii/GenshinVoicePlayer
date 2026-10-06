@@ -9,6 +9,7 @@ namespace VoicePlayer
         [JsonPropertyName("name")] public string Name { get; set; }
         [JsonPropertyName("order")] public long Order { get; set; }
         [JsonPropertyName("total")] public int Total { get; set; }
+        [JsonPropertyName("vocal")] public int Vocal { get; set; }
         [JsonPropertyName("cats")] public Dictionary<string, int> Cats { get; set; }
         [JsonPropertyName("group")] public string Group { get; set; }
     }

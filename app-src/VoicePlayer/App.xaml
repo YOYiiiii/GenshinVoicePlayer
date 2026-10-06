@@ -3,37 +3,128 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="AccentBrush" Color="#FFD08C"/>
+        <!-- ==========================================================================
+             DeepSeek Harness Desktop 主题令牌（暗色）
+             数值直接映射自 DSH 客户端主题包
+               @deepseek-ai/dsh-client-ui-theme  →  dsw-static-* / dsw-alias-*
+               lib/client.js 内 base_css_default / design_platform_css_default /
+               scrollbar_css_default
+             WPF 颜色为 #AARRGGBB；DSH 的白色透明度已按 0x0f/0x1f/0x29/0x33 = 6/12/16/20% 直译。
+             本文件只改"配色 / 字体 / 字号 / 圆角"，不改任何布局与控件几何。
+             ========================================================================== -->
+
+        <!-- ============ 一、DSH 背景层 ============ -->
+        <SolidColorBrush x:Key="DswBgBase"      Color="#151517"/><!-- bg-base        bluish-950 -->
+        <SolidColorBrush x:Key="DswBgLayer1"    Color="#232324"/><!-- bg-layer-1     bluish-875 -->
+        <SolidColorBrush x:Key="DswBgLayer2"    Color="#2C2C2E"/><!-- bg-layer-2     bluish-850 -->
+        <SolidColorBrush x:Key="DswBgLayer3"    Color="#353638"/><!-- bg-layer-3     bluish-800 -->
+        <SolidColorBrush x:Key="DswSidebarFill" Color="#1B1B1C"/><!-- sidebar-fill   bluish-900 -->
+
+        <!-- DSH 桌面窗口着色：color-mix(in srgb, rgb(24 25 28) 50%, transparent) -->
+        <SolidColorBrush x:Key="DswWindowTint"  Color="#8018191C"/>
+
+        <!-- 覆盖在模糊立绘之上的压暗层（DSH bg-mask 思路，色相改中性） -->
+        <SolidColorBrush x:Key="DswScrim"       Color="#73151517"/>
+        <!-- 两张卡片：bg-layer-1 @ 72%，保留立绘可见性（这是本程序的核心视觉，故未做纯不透明） -->
+        <SolidColorBrush x:Key="DswPanelFill"   Color="#B8232324"/>
+
+        <!-- ============ 二、DSH 描边层 ============ -->
+        <SolidColorBrush x:Key="DswBorderL1"    Color="#0FFFFFFF"/><!-- border-l1  6% -->
+        <SolidColorBrush x:Key="DswBorderL2"    Color="#1FFFFFFF"/><!-- border-l2 12% -->
+        <SolidColorBrush x:Key="DswBorderL3"    Color="#29FFFFFF"/><!-- border-l3 16% -->
+        <SolidColorBrush x:Key="DswBorderL4"    Color="#33FFFFFF"/><!-- border-l4 20% -->
+
+        <!-- ============ 三、DSH 文字层 ============ -->
+        <SolidColorBrush x:Key="DswLabelPrimary"   Color="#F9FAFB"/><!-- bluish-50  -->
+        <SolidColorBrush x:Key="DswLabelSecondary" Color="#CFD3D6"/><!-- bluish-300 -->
+        <SolidColorBrush x:Key="DswLabelTertiary"  Color="#ADB2B8"/><!-- bluish-400 -->
+        <SolidColorBrush x:Key="DswLabelCaption"   Color="#81858C"/><!-- bluish-600 -->
+        <SolidColorBrush x:Key="DswLabelDimmed"    Color="#43454A"/><!-- bluish-750 -->
+        <SolidColorBrush x:Key="DswLabelOnAccent"  Color="#0F1115"/><!-- primary-foreground -->
+
+        <!-- ============ 四、DSH 交互层 ============ -->
+        <SolidColorBrush x:Key="DswHover"        Color="#14FFFFFF"/><!-- interactive-bg-hover   8%  -->
+        <SolidColorBrush x:Key="DswActive"       Color="#24FFFFFF"/><!-- interactive-bg-active 14%  -->
+        <SolidColorBrush x:Key="DswHoverAccent"  Color="#3DFFFFFF"/><!-- hover-accent          24%  -->
+        <SolidColorBrush x:Key="DswNavActive"    Color="#43454A"/><!-- sidebar-nav-item-active -->
+        <SolidColorBrush x:Key="DswNavHover"     Color="#2C2C2E"/><!-- sidebar-nav-item-hover  -->
+        <SolidColorBrush x:Key="DswElevated"     Color="#43454A"/><!-- button-elevated-fill    -->
+        <SolidColorBrush x:Key="DswSelector"     Color="#353638"/><!-- specific-selector       -->
+
+        <!-- ============ 五、DSH 强调色与状态色 ============ -->
+        <!-- DSH 唯一的彩色强调：deepseek-400；用于链接、焦点环、进行中状态 -->
+        <SolidColorBrush x:Key="AccentBrush"     Color="#7AAAFF"/><!-- state-business-primary -->
+        <SolidColorBrush x:Key="DswSuccess"      Color="#22C55E"/><!-- green-500 -->
+        <SolidColorBrush x:Key="DswError"        Color="#F25A5A"/><!-- red-400   -->
+        <SolidColorBrush x:Key="DswWarn"         Color="#F59E0B"/><!-- amber-500 -->
+
+        <!-- ============ 五·五、半透明交互面（云母之上再叠一层，透出立绘 / 壁纸）============
+             白色透明度语义与 DSH 一致：12% = 输入面，16~20% = 按钮/选中，24% = 强调悬停。
+             数值集中在此处，想更透/更实只改这一段即可。
+             ============================================================================== -->
+        <SolidColorBrush x:Key="DswGlassFill"     Color="#1FFFFFFF"/><!-- 输入框 / 分组头   12% 白 -->
+        <SolidColorBrush x:Key="DswGlassBorder"   Color="#33FFFFFF"/><!-- 半透明描边        20% 白 -->
+        <SolidColorBrush x:Key="DswGlassButton"   Color="#29FFFFFF"/><!-- 按钮 / 分段选中   16% 白 -->
+        <SolidColorBrush x:Key="DswGlassSelected" Color="#38FFFFFF"/><!-- 列表选中行        22% 白 -->
+        <SolidColorBrush x:Key="DswGlassMenu"     Color="#E62C2C2E"/><!-- 右键菜单          90% 深色（保证可读）-->
+
+        <!-- ============ 六、DSH 滚动条 ============ -->
+        <SolidColorBrush x:Key="DswScrollThumb"      Color="#3C3C3D"/><!-- neutral-700 -->
+        <SolidColorBrush x:Key="DswScrollThumbHover" Color="#545557"/><!-- neutral-600 -->
+
+        <!-- ============ 七、DSH 字体族 ============ -->
+        <!-- dsw-font-family -->
+        <FontFamily x:Key="DswFont">Segoe UI, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Arial, sans-serif</FontFamily>
+        <!-- ds-font-family-code -->
+        <FontFamily x:Key="DswFontCode">Consolas, SF Mono, JetBrains Mono, Fira Code, Liberation Mono, Menlo, Microsoft YaHei</FontFamily>
+
+        <!-- ============ 八、DSH 字体阶梯（dsw-font-*）============
+             xxxs-11 = 11/14   xxs-12 = 12/18   xs-13 = 13/20
+             s-14    = 14/22   base-16 = 16/24  l-20  = 20/28
+             圆角：xs 4 · sm 8 · md 12 · lg 16 · xl 20 · panel 28
+             动效：.1s / .2s / .3s，cubic-bezier(.4,0,.2,1)
+             ========================================================= -->
+
+        <!-- ============ 九、控件样式 ============ -->
+
+        <!-- 列表：DSH 无边框、透明底 -->
         <Style TargetType="ListBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#F2F6FC"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
             <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
             <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
         </Style>
+
+        <!-- 列表项：hover = interactive-bg-hover(8%)，选中 = sidebar-nav-item-active -->
         <Style TargetType="ListBoxItem">
-            <Setter Property="Foreground" Value="#F2F6FC"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#26FFFFFF"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHover}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#40FFD08C"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswGlassSelected}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 播放按钮：几何完全保持原样（32px 圆 / 14×17 三角 / 15×15 方块 / Margin 3 光学右移）
+             仅改配色：常态 = 8% 白底 + primary 图标；hover = 14%；
+             播放态 = DSH primary 按钮（近白底 + 深色图标） -->
         <Style x:Key="PlayBtn" TargetType="Button">
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
@@ -42,148 +133,162 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="B" Background="#2EFFFFFF" CornerRadius="16">
+                        <Border x:Name="B" Background="{StaticResource DswHover}" CornerRadius="16">
                             <Grid>
-                                <!-- 播放：14×17 圆角三角（SF play.fill 比例 h/w≈1.2；Margin 2 = 半量生效约 +1px 光学右移，抵消宽底视觉重心偏左） -->
+                                <!-- 播放：14×17 圆角三角（SF play.fill 比例 h/w≈1.2；Margin 3 = 半量生效约 +0.5 物理像素光学右移，抵消宽底视觉重心偏左） -->
                                 <Path x:Name="IconPlay" Data="M 0,0 L 11,7 L 0,14 Z"
-                                      Fill="#FFE6B0" Stroke="#FFE6B0" StrokeThickness="3" StrokeLineJoin="Round"
-                                      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                                      Fill="{StaticResource DswLabelPrimary}" Stroke="{StaticResource DswLabelPrimary}" StrokeThickness="3" StrokeLineJoin="Round"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,2,0,0"/>
                                 <!-- 停止：15×15 圆角方块（r=3.4，与三角视觉等重） -->
                                 <Path x:Name="IconStop" Data="M 0,3.4 A 3.4,3.4 0 0 1 3.4,0 L 11.6,0 A 3.4,3.4 0 0 1 15,3.4 L 15,11.6 A 3.4,3.4 0 0 1 11.6,15 L 3.4,15 A 3.4,3.4 0 0 1 0,11.6 Z"
-                                      Fill="#FFE6B0" Visibility="Collapsed"
+                                      Fill="{StaticResource DswLabelOnAccent}" Visibility="Collapsed"
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#40FFD08C"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswActive}"/>
                             </Trigger>
+                            <!-- 播放态 = DSH 主按钮（button-primary-fill #F9FAFB + label-primary-foreground #0F1115） -->
                             <Trigger Property="Tag" Value="playing">
                                 <Setter TargetName="IconPlay" Property="Visibility" Value="Collapsed"/>
                                 <Setter TargetName="IconStop" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="B" Property="Background" Value="#3AFFD08C"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswLabelPrimary}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 窗控按钮：DSH ghost 按钮（透明底，hover 8%） -->
         <Style x:Key="WinBtn" TargetType="Button">
             <Setter Property="Width" Value="44"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="Foreground" Value="#E8EEF6"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelSecondary}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="6">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHover}"/>
+                                <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 关闭按钮：hover 保持 Windows 惯例红，但用 DSH 的 error-400 色相 -->
         <Style x:Key="WinBtnClose" TargetType="Button" BasedOn="{StaticResource WinBtn}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="6">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#CCE81123"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswError}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 分段切换（全量搜索 / 当前角色）：选中 = specific-selector #353638 -->
         <Style x:Key="MiniToggle" TargetType="ToggleButton">
             <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="Foreground" Value="#DCE6F4"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelTertiary}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="B" CornerRadius="6" Padding="10,4" Background="#22FFFFFF" BorderBrush="#33FFFFFF" BorderThickness="1">
+                        <Border x:Name="B" CornerRadius="8" Padding="10,0" Height="28" Background="Transparent" BorderBrush="{StaticResource DswBorderL2}" BorderThickness="1">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#3AFFFFFF"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHover}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#66FFD08C"/>
-                                <Setter TargetName="B" Property="BorderBrush" Value="#AAFFD08C"/>
-                                <Setter Property="Foreground" Value="#FFF2D9"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswGlassButton}"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{StaticResource DswGlassBorder}"/>
+                                <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 次要按钮（导入数据源…）：对应 DSH .button.sm + elevated-fill
+             尺寸对齐 .button.sm：height 28 / font 12 / line-height 18 / radius 8 / padding 0 10 -->
         <Style x:Key="MiniBtn" TargetType="Button">
-            <Setter Property="Foreground" Value="#FFE6B0"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
             <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="B" CornerRadius="6" Padding="12,5" Background="#33FFD08C" BorderBrush="#88FFD08C" BorderThickness="1">
+                        <Border x:Name="B" CornerRadius="8" Padding="10,0" Background="{StaticResource DswGlassButton}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#66FFD08C"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHoverAccent}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#99FFD08C"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswActive}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 滚动条滑块：DSH scrollbar-bg-l1 / hover-l1，圆角 999px -->
         <Style x:Key="SlimThumb" TargetType="Thumb">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border x:Name="B" CornerRadius="3" Background="#664C5E78"/>
+                        <Border x:Name="B" CornerRadius="3" Background="{StaticResource DswScrollThumb}"/>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#995D7390"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswScrollThumbHover}"/>
                             </Trigger>
                             <Trigger Property="IsDragging" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#BB708BAE"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswScrollThumbHover}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 滚动条：DSH 宽度 5px -->
         <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="10"/>
+            <Setter Property="Width" Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollBar">
-                        <Grid Background="Transparent" Width="10">
-                            <Track x:Name="PART_Track" IsDirectionReversed="True" Margin="3,2">
+                        <Grid Background="Transparent" Width="5">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.Thumb>
                                     <Thumb Style="{StaticResource SlimThumb}" MinHeight="28"/>
                                 </Track.Thumb>
@@ -195,12 +300,12 @@
             <Style.Triggers>
                 <Trigger Property="Orientation" Value="Horizontal">
                     <Setter Property="Width" Value="Auto"/>
-                    <Setter Property="Height" Value="10"/>
+                    <Setter Property="Height" Value="5"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ScrollBar">
-                                <Grid Background="Transparent" Height="10">
-                                    <Track x:Name="PART_Track" Orientation="Horizontal" IsDirectionReversed="False" Margin="2,3">
+                                <Grid Background="Transparent" Height="5">
+                                    <Track x:Name="PART_Track" Orientation="Horizontal" IsDirectionReversed="False">
                                         <Track.Thumb>
                                             <Thumb Style="{StaticResource SlimThumb}" MinWidth="28"/>
                                         </Track.Thumb>
@@ -212,11 +317,14 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- 顶部页签（角色 / 地区音乐）：选中 = specific-selector，未选中 = tertiary -->
         <Style x:Key="TabBtn" TargetType="Button">
             <Setter Property="Margin" Value="3"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Foreground" Value="#DCE6F4"/>
-            <Setter Property="Background" Value="#26FFFFFF"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelTertiary}"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -226,9 +334,182 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="#40FFFFFF"/>
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHover}"/>
+                                <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="Tag" Value="active">
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswGlassButton}"/>
+                                <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 文本输入：DSH input-major #2C2C2E + border-l2 -->
+    
+    <!-- 放大镜：矢量绘制，不依赖 Segoe MDL2 图标字体（部分机器未安装） -->
+    <Geometry x:Key="IconSearch">M 6.5,1.6 A 5,5 0 1 1 6.49,1.6 Z M 10.4,10.4 L 14,14</Geometry>
+
+
+    <Style x:Key="DswTextBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- 必须显式左对齐：WPF 默认会把 TextBox 内容水平居中，
+                 于是输入的文字与左对齐的占位提示错位约 30px（实测 Padding 24→0 只移动 15px ≈ 24/2） -->
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="B" CornerRadius="8" Background="{StaticResource DswGlassFill}"
+                                BorderBrush="{StaticResource DswGlassBorder}" BorderThickness="1">
+                            <!-- 不要在这里绑 Padding：TextBox 自身已经按 Padding 布局文本，
+                                 再绑到 ScrollViewer.Margin 会导致 Padding 被应用两次
+                                 （实测 Padding=24 时输入文字距左缘 56px ≈ 2×24+边框） -->
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="{StaticResource DswHoverAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <!-- DSH focus ring：2px，色 = state-business-primary -->
+                                <Setter TargetName="B" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    <!-- 内联搜索框：比 28px 的按钮矮一档，左侧给放大镜留位 -->
+    <Style x:Key="DswTextBoxSlim" TargetType="TextBox" BasedOn="{StaticResource DswTextBox}">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="24,2,8,2"/>
+    </Style>
+
+
+        <!-- 进度/音量滑杆：DSH 轨道 border-l2 + 强调色已填充段 + 白色圆形滑块 -->
+        <Style x:Key="DswSliderRepeatFill" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="4" CornerRadius="2" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DswSliderRepeatEmpty" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Height="4" CornerRadius="2" Background="{StaticResource DswBorderL2}" VerticalAlignment="Center"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DswSliderThumb" TargetType="Thumb">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse x:Name="E" Width="12" Height="12" Fill="{StaticResource DswLabelPrimary}"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="E" Property="Fill" Value="{StaticResource DswLabelPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DswSlider" TargetType="Slider">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid VerticalAlignment="Center" Background="Transparent">
+                            <Border Height="4" CornerRadius="2" Background="{StaticResource DswBorderL2}" VerticalAlignment="Center"/>
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource DswSliderRepeatFill}"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource DswSliderRepeatEmpty}"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource DswSliderThumb}"/>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 右键菜单：DSH menu surface -->
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="{StaticResource DswGlassMenu}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource DswGlassBorder}"/>
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border CornerRadius="12" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" Padding="4">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{StaticResource DswLabelPrimary}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DswFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="B" CornerRadius="8" Padding="10,6" Background="Transparent">
+                            <ContentPresenter ContentSource="Header" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{StaticResource DswHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource DswLabelDimmed}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Separator">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="6,4"/>
+            <Setter Property="Background" Value="{StaticResource DswBorderL2}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="1" Background="{TemplateBinding Background}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
