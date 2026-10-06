@@ -95,7 +95,6 @@ license.rtf            安装向导的许可页
 | `data\` | 索引与台词文本（由 `scripts\` 管线生成） |
 | `dist\` | 安装包输出（成品通过 Releases 分发） |
 | `installer-ui\` | 安装向导品牌图 |
-| `技术栈与架构说明.md` | 内部架构文档 |
 
 ### 安装后的目录结构
 
@@ -106,7 +105,7 @@ license.rtf            安装向导的许可页
 ├─ assets\bg\     头像 avatar\（700 张）+ 地区背景 + 角色模糊背景
 ├─ scripts\       数据管线与安装包定义（便于自行重建数据）
 ├─ config.json    音频数据源（由【导入数据源…】生成）
-└─ README-说明.txt / 技术栈与架构说明.md
+└─ README-说明.txt
 ```
 
 ---
